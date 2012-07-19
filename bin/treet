@@ -4,6 +4,8 @@ require 'treet'
 
 path,root = ARGV
 
+raise "usage: treet [root] OR treet [file.json] [root]" if path.nil?
+
 if File.file?(path)
   # convert JSON to filetree
   raise "usage: treet [file.json] [root]" if root.nil?
