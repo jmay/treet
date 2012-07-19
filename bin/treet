@@ -2,7 +2,17 @@
 
 require 'treet'
 
-path = ARGV.shift
+path,root = ARGV
 
-repo = Treet::Repo.new(path)
-puts JSON.pretty_generate(repo.to_hash)
+if File.file?(path)
+  # convert JSON to filetree
+  raise "usage: treet [file.json] [root]" if root.nil?
+
+  hash = Treet::Hash.new(path)
+  hash.to_repo(root)
+  $stderr.puts "Wrote files to directory tree under #{root}"
+else
+  # convert filetree to JSON
+  repo = Treet::Repo.new(path)
+  puts JSON.pretty_generate(repo.to_hash)
+end
