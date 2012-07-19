@@ -9,9 +9,10 @@ describe "Hash" do
     }
   end
 
-  # it "should compare file trees to hashes" do
-  #   repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one")
-  #   diffs = repo.compare({'name' => 'John Yaya'})
-  #   diffs.should == [["~", "name", "John Bigbooté", "John Yaya"]]
-  # end
+  it "should compare hashes to file trees" do
+    hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
+    repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one")
+    hash.compare(repo)
+    diffs.should == []
+  end
 end
