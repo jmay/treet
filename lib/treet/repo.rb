@@ -1,7 +1,9 @@
 # encoding: UTF-8
 
+require 'hashdiff'
+
 class Treet::Repo
-  attr_reader :root
+  attr_reader :root, :hash
 
   def initialize(path)
     # TODO: validate that path exists and is a directory (symlinks should work)
@@ -10,7 +12,11 @@ class Treet::Repo
   end
 
   def to_hash
-    expand(root)
+    @hash ||= expand(root)
+  end
+
+  def compare(hash)
+    HashDiff.diff(to_hash, hash)
   end
 
   private
