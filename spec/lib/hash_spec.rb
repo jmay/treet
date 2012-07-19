@@ -12,7 +12,6 @@ describe "Hash" do
   it "should compare hashes to file trees" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one")
-    hash.compare(repo)
-    diffs.should == []
+    hash.compare(repo).should == []
   end
 end
