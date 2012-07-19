@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require 'treet'
+
+path = ARGV.shift
+
+repo = Treet::Repo.new(path)
+puts JSON.pretty_generate(repo.to_hash)

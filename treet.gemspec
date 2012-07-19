@@ -4,8 +4,8 @@ require File.expand_path('../lib/treet/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Jason May"]
   gem.email         = ["jmay@pobox.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.description   = %q{Transform between trees of files and JSON blobs}
+  gem.summary       = %q{Transform between trees of files and JSON blobs}
   gem.homepage      = ""
 
   gem.files         = `git ls-files`.split($\)
