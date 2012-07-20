@@ -1,6 +1,6 @@
 # Treet
 
-TODO: Write a gem description
+Transform between trees of files and JSON blobs
 
 ## Installation
 
@@ -18,7 +18,16 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+    require 'treet'
+
+    repo = Treet::Repo.new(directory)
+    hash = Treet::Hash.new(jsonfile)
+
+## Structures
+
+All the nodes at the top level are mapped to subdirectories.
+
+At the second level, arrays are converted to subdirectories named '0', '1', '2' etc. except that *for comparison purposes the order is ignored*.
 
 ## Contributing
 

@@ -1,0 +1,17 @@
+{
+  "name": {
+    "first": "John",
+    "last": "Smallberries",
+    "full": "John Smallberries"
+  },
+  "email": [
+    {
+      "label": "home",
+      "value": "johns@lectroid.com"
+    },
+    {
+      "label": "work",
+      "value": "johns@yoyodyne.com"
+    }
+  ]
+}

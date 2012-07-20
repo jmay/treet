@@ -27,6 +27,12 @@ class Treet::Repo
     end
 
     tree = Dir.entries(path).select {|f|  f !~ /^\./}
-    tree.each_with_object({}) {|f,h| h[f] = expand("#{path}/#{f}")}
+
+    if tree.all? {|f| f =~ /^\d*$/}
+      # transform to array
+      tree.each_with_object([]) {|f,a| a << expand("#{path}/#{f}")}
+    else
+      tree.each_with_object({}) {|f,h| h[f] = expand("#{path}/#{f}")}
+    end
   end
 end

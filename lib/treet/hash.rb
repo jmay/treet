@@ -30,8 +30,17 @@ class Treet::Hash
           construct(body,name)
         end
       end
-    else
+    when Array
+      Dir.mkdir(filename)
+      Dir.chdir(filename) do
+        data.each_with_index do |v, i|
+          construct(v, i.to_s)
+        end
+      end
+    when String
       File.open(filename, "w") {|f| f << data}
+    else
+      raise "Unsupported object type #{data.class} for #{filename}"
     end
   end
 end

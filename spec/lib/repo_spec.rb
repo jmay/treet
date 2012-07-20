@@ -15,4 +15,20 @@ describe "Repo" do
     diffs = repo.compare({'name' => 'John Yaya'})
     diffs.should == [["~", "name", "John Bigbooté", "John Yaya"]]
   end
+
+  it "should flatten numbered subdirs to arrays" do
+    repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/two")
+    hash = repo.to_hash
+    hash['email'].should == [
+      {
+        "label" => "home",
+        "value" => "johns@lectroid.com"
+      },
+      {
+        "label" => "work",
+        "value" => "johns@yoyodyne.com"
+      }
+    ]
+  end
+
 end
