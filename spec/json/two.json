@@ -4,14 +4,12 @@
     "last": "Smallberries",
     "full": "John Smallberries"
   },
-  "email": [
-    {
-      "label": "home",
-      "value": "johns@lectroid.com"
+  "email": {
+    "home": {
+      "email": "johns@lectroid.com"
     },
-    {
-      "label": "work",
-      "value": "johns@yoyodyne.com"
+    "work": {
+      "email": "johns@yoyodyne.com"
     }
-  ]
+  }
 }

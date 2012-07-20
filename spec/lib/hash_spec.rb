@@ -30,7 +30,7 @@ describe "Hash" do
 
     Dir.mktmpdir() do |dir|
       hash.to_repo(dir)
-      File.read("#{dir}/email/1/label").should == 'work'
+      File.read("#{dir}/email/work/email").should == 'johns@yoyodyne.com'
     end
   end
 
@@ -39,5 +39,12 @@ describe "Hash" do
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/two")
 
     hash.compare(repo).should == []
+  end
+
+  it "should find differences independently of order" do
+    hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/two.json")
+    repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/three")
+
+    hash.compare(repo).should == [["~", "email.home.email", "johns@lectroid.com", "johnsmallberries@lectroid.com"]]
   end
 end
