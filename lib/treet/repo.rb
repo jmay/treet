@@ -30,7 +30,7 @@ class Treet::Repo
 
     if tree.all? {|f| f =~ /^\d*$/}
       # transform to array
-      tree.each_with_object([]) {|f,a| a << expand("#{path}/#{f}")}
+      tree.each_with_object(Set.new) {|f,a| a << expand("#{path}/#{f}")}
     else
       tree.each_with_object({}) {|f,h| h[f] = expand("#{path}/#{f}")}
     end

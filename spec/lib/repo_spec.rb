@@ -28,7 +28,7 @@ describe "Repo" do
         "label" => "work",
         "value" => "johns@yoyodyne.com"
       }
-    ]
+    ].to_set
   end
 
 end

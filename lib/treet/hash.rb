@@ -6,7 +6,9 @@ class Treet::Hash
   attr_reader :data
 
   def initialize(jsonfile)
-    @data = JSON.load(File.read(jsonfile))
+    d = JSON.load(File.read(jsonfile))
+    # convert Arrays to Sets
+    @data = d.each_with_object({}) {|(k,v),h| h[k] = v.is_a?(Array) ? v.to_set : v}
   end
 
   def to_repo(root)
@@ -30,7 +32,7 @@ class Treet::Hash
           construct(body,name)
         end
       end
-    when Array
+    when Array, Set
       Dir.mkdir(filename)
       Dir.chdir(filename) do
         data.each_with_index do |v, i|
