@@ -11,7 +11,7 @@ class Treet::Hash
     d = JSON.load(File.read(jsonfile))
     # convert Arrays to Sets
     # @data = d.each_with_object({}) {|(k,v),h| h[k] = v.is_a?(Array) ? v.to_set : v}
-    @data = d.each_with_object({}) {|(k,v),h| h[k] = v.is_a?(Array) ? v.sort_by(&:hash) : v}
+    @data = normalize(d)
   end
 
   def to_repo(root)
@@ -52,30 +52,18 @@ class Treet::Hash
         end
       end
     end
+  end
 
-    # case data
-    # when String
-    #   File.open(filename, "w") {|f| f << data}
-    # when Hash
-    #   unless filename == '.'
-    #     Dir.mkdir(filename) rescue nil
-    #   end
-    #   Dir.chdir(filename) do
-    #     data.each do |name,body|
-    #       File.open(name, "w") {|f| f << body.to_json}
-    #       # construct(body,name)
-    #     end
-    #   end
-    # when Array #, Set
-    #   Dir.mkdir(filename)
-    #   Dir.chdir(filename) do
-    #     data.each_with_index do |v, i|
-    #       File.open(i.to_s, "w") {|f| f << v.to_json}
-    #     end
-    #   end
-    # else
-    #   raise "Unsupported object type #{data.class} for #{filename}"
-    # end
+  def normalize(hash)
+    hash.each_with_object({}) do |(k,v),h|
+      if v.is_a?(Array)
+        h[k] = v.sort do |a,b|
+          a.to_a.sort_by(&:first).flatten <=> b.to_a.sort_by(&:first).flatten
+        end
+      else
+        h[k] = v
+      end
+    end
   end
 
   def self.diff(hash1, hash2)
@@ -94,7 +82,7 @@ class Treet::Hash
           end
           (v1.keys - v2.keys).each do |k2|
             # deleted sub-elements
-            diffs << ['-', "#{k}.#{k2}"]
+            diffs << ['-', "#{k}.#{k2}", v1[k2]]
           end
           (v1.keys & v2.keys).each do |k2|
             if v1[k2] != v2[k2]
@@ -104,14 +92,14 @@ class Treet::Hash
           end
 
         when Array
-          # assume that arrays have been sorted per `initialize` above
+          # assume that arrays have been sorted per `normalize`
           a1 = hash1[k]
           a2 = hash2[k]
 
           a1.each_with_index do |v1, i|
             if !a2.include?(v1)
               # element has been removed
-              diffs << ['-', "#{k}[#{i}]"]
+              diffs << ['-', "#{k}[#{i}]", v1]
             end
           end
 

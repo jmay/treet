@@ -55,7 +55,7 @@ describe "Hash" do
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/three")
 
     hash.compare(repo).should == [
-      ["-", "emails[0]"],
+      ["-", "emails[0]", {"label"=>"home", "email"=>"johns@lectroid.com"}],
       ["+", "emails[]", {"label"=>"home", "email"=>"johnsmallberries@lectroid.com"}]
     ]
     # hash.compare(repo).should == [["~", "email.home.email", "johns@lectroid.com", "johnsmallberries@lectroid.com"]]
@@ -64,7 +64,7 @@ describe "Hash" do
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/four")
 
     hash.compare(repo).should == [
-      ["-", "emails[0]"],
+      ["-", "emails[0]", {"label"=>"home", "email"=>"johns@lectroid.com"}],
       ["+", "emails[]", {"label"=>"home", "email"=>"johnsmallberries@lectroid.com"}]
     ]
     # hash.compare(repo).should == [["~", "email.home.email", "johns@lectroid.com", "johnsmallberries@lectroid.com"]]
