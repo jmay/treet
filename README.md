@@ -36,3 +36,8 @@ At the second level, arrays are converted to subdirectories named '0', '1', '2' 
 3. Commit your changes (`git commit -am 'Added some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create new Pull Request
+
+## TODO
+
+* Treet.init(json, root) to explode a JSON array-of-hashes (validate the structure first) into a set of directories (generate UUIDs for names)
+* Enforce limitation on structure depth (top-level elements can contain flat hashes or arrays, nothing else)

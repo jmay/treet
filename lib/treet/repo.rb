@@ -23,16 +23,22 @@ class Treet::Repo
 
   def expand(path)
     if File.file?(path)
-      return File.read(path)
-    end
-
-    tree = Dir.entries(path).select {|f|  f !~ /^\./}
-
-    if tree.all? {|f| f =~ /^\d*$/}
-      # transform to array
-      tree.each_with_object([]) {|f,a| a << expand("#{path}/#{f}")}.sort_by(&:hash)
+      # found a key/value hash
+      begin
+        JSON.load(File.open(path))
+      rescue JSON::ParserError => e
+        $stderr.puts "JSON syntax error in #{path}"
+        nil
+      end
     else
-      tree.each_with_object({}) {|f,h| h[f] = expand("#{path}/#{f}")}
+      tree = Dir.entries(path).select {|f|  f !~ /^\./}
+
+      if tree.all? {|f| f =~ /^\d*$/}
+        # transform to array
+        tree.each_with_object([]) {|f,a| a << expand("#{path}/#{f}")}.sort_by(&:hash)
+      else
+        tree.each_with_object({}) {|f,h| h[f] = expand("#{path}/#{f}")}
+      end
     end
   end
 end

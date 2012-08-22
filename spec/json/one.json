@@ -1,1 +1,5 @@
-{"name":"John Bigbooté"}
+{
+  "name": {
+    "full": "John Bigbooté"
+  }
+}

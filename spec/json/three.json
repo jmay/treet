@@ -6,12 +6,12 @@
   },
   "emails": [
     {
-      "label": "home",
-      "email": "johns@lectroid.com"
-    },
-    {
       "label": "work",
       "email": "johns@yoyodyne.com"
+    },
+    {
+      "label": "home",
+      "email": "johns@lectroid.com"
     }
   ]
 }
