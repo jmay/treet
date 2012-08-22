@@ -15,7 +15,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Treet::VERSION
 
-  gem.add_dependency 'hashdiff'
+  gem.add_dependency 'uuidtools'
+  # gem.add_dependency 'hashdiff'
 
   gem.add_development_dependency "rake", "~> 0.9.2"
   gem.add_development_dependency "rspec", "~> 2.9.0"

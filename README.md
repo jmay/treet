@@ -39,5 +39,5 @@ At the second level, arrays are converted to subdirectories named '0', '1', '2' 
 
 ## TODO
 
-* Treet.init(json, root) to explode a JSON array-of-hashes (validate the structure first) into a set of directories (generate UUIDs for names)
 * Enforce limitation on structure depth (top-level elements can contain flat hashes or arrays, nothing else)
+* Check all exception for explicit classes

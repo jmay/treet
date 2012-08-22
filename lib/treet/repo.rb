@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-require 'hashdiff'
+# require 'hashdiff'
 
 class Treet::Repo
   attr_reader :root, :hash
@@ -15,8 +15,9 @@ class Treet::Repo
     @hash ||= expand(root)
   end
 
-  def compare(hash)
-    HashDiff.diff(to_hash, hash)
+  def compare(target)
+    Treet::Hash.diff(to_hash, target.to_hash)
+    # HashDiff.diff(to_hash, hash)
   end
 
   private

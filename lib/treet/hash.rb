@@ -7,10 +7,17 @@ class Treet::Hash
 
   # when loading an Array (at the top level), members are always sorted
   # so that array comparisons will be order-independent
-  def initialize(jsonfile)
-    d = JSON.load(File.read(jsonfile))
-    # convert Arrays to Sets
-    # @data = d.each_with_object({}) {|(k,v),h| h[k] = v.is_a?(Array) ? v.to_set : v}
+  def initialize(source)
+    d = case source
+    when Hash
+      source
+    when String
+      # treat as filename
+      JSON.load(File.read(source))
+    else
+      raise "Invalid source data type #{source.class} for Treet::Hash"
+    end
+
     @data = normalize(d)
   end
 
@@ -87,7 +94,7 @@ class Treet::Hash
           (v1.keys & v2.keys).each do |k2|
             if v1[k2] != v2[k2]
               # altered sub-elements
-              diffs << ['~', "#{k}.#{k2}", v2[k2]]
+              diffs << ['~', "#{k}.#{k2}", v1[k2], v2[k2]]
             end
           end
 

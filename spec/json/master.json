@@ -1,0 +1,55 @@
+[
+  {
+    "name": {
+      "first": "John",
+      "last": "Yaya",
+      "full": "John Yaya"
+    },
+    "emails": [
+      {
+        "label": "work",
+        "email": "johny@yoyodyne.com"
+      }
+    ]
+  },
+  {
+    "name": {
+      "first": "John",
+      "last": "Smallberries",
+      "full": "John Smallberries"
+    },
+    "emails": [
+      {
+        "label": "work",
+        "email": "johns@yoyodyne.com"
+      },
+      {
+        "label": "home",
+        "email": "johns@lectroid.com"
+      }
+    ],
+    "addresses": [
+      {
+        "label": "home",
+        "planet": "Ten"
+      }
+    ]
+  },
+  {
+    "name": {
+      "first": "John",
+      "last": "Bigbooté",
+      "full": "John Bigbooté"
+    },
+    "emails": [
+      {
+        "label": "work",
+        "email": "johnb@yoyodyne.com"
+      },
+      {
+        "label": "home",
+        "email": "johnbig@lectroid.com"
+      }
+    ]
+  }
+]
