@@ -2,19 +2,33 @@
 
 require 'treet'
 
-path,root = ARGV
+command,*args = ARGV
 
-raise "usage: treet [root] OR treet [file.json] [root]" if path.nil?
-
-if File.file?(path)
-  # convert JSON to filetree
-  raise "usage: treet [file.json] [root]" if root.nil?
-
+case command
+when 'expand'
+  # convert JSON to filetree - single record
+  path, root = args
   hash = Treet::Hash.new(path)
   hash.to_repo(root)
   $stderr.puts "Wrote files to directory tree under #{root}"
+
+when 'explode'
+  # convert JSON to filetree - multiple records
+  path, root = args
+  dir = Treet.init(path, root)
+  filecount = Dir.glob("#{dir}/*").count
+  $stderr.puts "Wrote #{filecount} files to #{root}"
+
+when 'import'
+
+  if File.file?(path)
+    # convert filetree to JSON
+    repo = Treet::Repo.new(args.first)
+    puts JSON.pretty_generate(repo.to_hash)
+  else
+    raise "treet import: no such file #{path}"
+  end
+
 else
-  # convert filetree to JSON
-  repo = Treet::Repo.new(path)
-  puts JSON.pretty_generate(repo.to_hash)
+  raise "usage: treet expand jsonfile root OR treet explore jsonfile root OR treet import root"
 end
