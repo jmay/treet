@@ -69,4 +69,12 @@ describe "Hash" do
     ]
     # hash.compare(repo).should == [["~", "email.home.email", "johns@lectroid.com", "johnsmallberries@lectroid.com"]]
   end
+
+  it "should expand arrays of strings to empty files" do
+    hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/group.json")
+    Dir.mktmpdir() do |dir|
+      hash.to_repo(dir)
+      Dir.glob("#{dir}/contacts/*").count.should == 7
+    end
+  end
 end

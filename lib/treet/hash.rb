@@ -51,8 +51,19 @@ class Treet::Hash
         when Array
           Dir.mkdir(k)
           v.each_with_index do |v2, i|
-            File.open("#{k}/#{i}", "w") {|f| f << v2.to_json}
+            case v2
+            when String
+              # create empty file with this name
+              File.open("#{k}/#{v2}", "w")
+
+            else
+              # store object contents as JSON into a generated filename
+              File.open("#{k}/#{i}", "w") {|f| f << v2.to_json}
+            end
           end
+
+        when String
+          File.open(k, "w") {|f| f << v}
 
         else
           raise "Unsupported object type #{v.class} for '#{k}'"
@@ -63,10 +74,17 @@ class Treet::Hash
 
   def normalize(hash)
     hash.each_with_object({}) do |(k,v),h|
-      if v.is_a?(Array)
-        h[k] = v.sort do |a,b|
-          a.to_a.sort_by(&:first).flatten <=> b.to_a.sort_by(&:first).flatten
+      case v
+      when Array
+        if v.map(&:class).uniq == Hash
+          # all elements are Hashes
+          h[k] = v.sort do |a,b|
+            a.to_a.sort_by(&:first).flatten <=> b.to_a.sort_by(&:first).flatten
+          end
+        else
+          h[k] =v
         end
+
       else
         h[k] = v
       end
