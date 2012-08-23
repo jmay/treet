@@ -78,3 +78,20 @@ describe "Hash" do
     end
   end
 end
+
+describe "shallow comparison of hashes" do
+  it "should be blank for identity" do
+    h1 = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/bob1.json")
+    h2 = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/bob1.json")
+    h1.compare(h2).should == []
+  end
+
+  it "should handle keys missing from one or either source hash" do
+    h1 = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/bob1.json")
+    h2 = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/bob2.json")
+    diffs = h1.compare(h2)
+    diffs.should include(["~", "name.full", "Bob Smith", "Robert Smith"])
+    diffs.should include(["+", "business.organization", "Acme Inc."])
+    diffs.should include(["-", "other.notes", "some commentary"])
+  end
+end

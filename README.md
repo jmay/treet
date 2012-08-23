@@ -1,6 +1,11 @@
 # Treet
 
-Transform between trees of files and JSON blobs
+Comparisons and transformation between trees of files and JSON blobs
+
+The "JSON blobs" that are supported are not unlimited in structure, but must define:
+
+* hashes, where are the values are either {hashes where the values are all scalars} or {arrays of hashes where the values are all scalars}
+* or arrays of hashes as described above.
 
 ## Installation
 
@@ -22,6 +27,11 @@ Or install it yourself as:
 
     repo = Treet::Repo.new(directory)
     hash = Treet::Hash.new(jsonfile)
+
+    hash = repo.to_hash
+    repo = hash.to_repo(root)
+
+    Treet.init(jsonfile, root) # when jsonfile contains an array which is exploded to multiple files
 
 ## Structures
 

@@ -94,51 +94,49 @@ class Treet::Hash
   def self.diff(hash1, hash2)
     diffs = []
 
-    hash1.each do |k,v|
-      if hash2.include?(k)
-        case v
-        when Hash
-          v1 = hash1[k]
-          v2 = hash2[k]
+    keys = hash1.keys | hash2.keys
+    keys.each do |k|
+      # if a value is missing from hash1, create a dummy of the same type that appears in hash2
+      v1 = hash1[k] || hash2[k].class.new
+      v2 = hash2[k] || hash1[k].class.new
 
-          (v2.keys - v1.keys).each do |k2|
-            # new sub-elements
-            diffs << ['+', "#{k}.#{k2}", v2[k2]]
-          end
-          (v1.keys - v2.keys).each do |k2|
-            # deleted sub-elements
-            diffs << ['-', "#{k}.#{k2}", v1[k2]]
-          end
-          (v1.keys & v2.keys).each do |k2|
-            if v1[k2] != v2[k2]
-              # altered sub-elements
-              diffs << ['~', "#{k}.#{k2}", v1[k2], v2[k2]]
-            end
-          end
-
-        when Array
-          # assume that arrays have been sorted per `normalize`
-          a1 = hash1[k]
-          a2 = hash2[k]
-
-          a1.each_with_index do |v1, i|
-            if !a2.include?(v1)
-              # element has been removed
-              diffs << ['-', "#{k}[#{i}]", v1]
-            end
-          end
-
-          (a2 - a1).each do |v2|
-            # new array element
-            diffs << ['+', "#{k}[]", v2]
-          end
-
-        else
-          # TODO add StandardError class
-          raise "Data structure invalid at '#{k}': only Hash and Array members are permitted"
+      case v1
+      when Hash
+        (v2.keys - v1.keys).each do |k2|
+          # new sub-elements
+          diffs << ['+', "#{k}.#{k2}", v2[k2]]
         end
+        (v1.keys - v2.keys).each do |k2|
+          # deleted sub-elements
+          diffs << ['-', "#{k}.#{k2}", v1[k2]]
+        end
+        (v1.keys & v2.keys).each do |k2|
+          if v1[k2] != v2[k2]
+            # altered sub-elements
+            diffs << ['~', "#{k}.#{k2}", v1[k2], v2[k2]]
+          end
+        end
+
+      when Array
+        # assume that arrays have been sorted per `normalize`
+        a1 = v1
+        a2 = v2
+
+        a1.each_with_index do |v1, i|
+          if !a2.include?(v1)
+            # element has been removed
+            diffs << ['-', "#{k}[#{i}]", v1]
+          end
+        end
+
+        (a2 - a1).each do |v2|
+          # new array element
+          diffs << ['+', "#{k}[]", v2]
+        end
+
       else
-        diffs << ['+', k, v]
+        # TODO add StandardError class
+        raise "Data structure invalid at '#{k}': only Hash and Array members are permitted"
       end
     end
 

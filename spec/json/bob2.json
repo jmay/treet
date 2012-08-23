@@ -1,0 +1,20 @@
+{
+  "name": {
+    "first": "Bob",
+    "last": "Smith",
+    "full": "Robert Smith"
+  },
+  "emails": [
+    {
+      "label": "home",
+      "email": "bob@newhome.com"
+    },
+    {
+      "label": "work",
+      "email": "bob@work.com"
+    }
+  ],
+  "business": {
+    "organization": "Acme Inc."
+  }
+}

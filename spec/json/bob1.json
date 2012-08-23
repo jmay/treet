@@ -1,0 +1,20 @@
+{
+  "name": {
+    "first": "Bob",
+    "last": "Smith",
+    "full": "Bob Smith"
+  },
+  "emails": [
+    {
+      "label": "home",
+      "email": "bob@home.com"
+    },
+    {
+      "label": "work",
+      "email": "bob@work.com"
+    }
+  ],
+  "other": {
+    "notes": "some commentary"
+  }
+}
