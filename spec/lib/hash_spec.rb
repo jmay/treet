@@ -93,5 +93,8 @@ describe "shallow comparison of hashes" do
     diffs.should include(["~", "name.full", "Bob Smith", "Robert Smith"])
     diffs.should include(["+", "business.organization", "Acme Inc."])
     diffs.should include(["-", "other.notes", "some commentary"])
+
+    h3 = h1.patch(diffs)
+    h3.compare(h2).should == []
   end
 end

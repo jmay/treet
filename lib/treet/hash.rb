@@ -34,6 +34,12 @@ class Treet::Hash
     Treet::Hash.diff(data.to_hash, target.to_hash)
   end
 
+  # apply diffs (created via the `#compare` function) to create a new object
+  def patch(diffs)
+    newhash = Treet::Hash.patch(self.to_hash, diffs)
+    Treet::Hash.new(newhash)
+  end
+
   private
 
   def construct(data, filename)
@@ -141,5 +147,57 @@ class Treet::Hash
     end
 
     diffs
+  end
+
+  def self.patch(hash, diffs)
+    result = hash.dup
+
+    diffs.each do |diff|
+      flag, key, v1, v2 = diff
+      if key =~ /\[/
+        keyname, is_array, index = key.match(/^(.*)(\[)(.*)\]$/).captures
+      elsif key =~ /\./
+        keyname, subkey = key.match(/^(.*)\.(.*)$/).captures
+      else
+        keyname = key
+      end
+
+      case flag
+      when '~'
+        # change a value in place
+
+        if subkey
+          result[keyname][subkey] = v2
+        else
+          result[keyname] = v2
+        end
+
+      when '+'
+        # add something
+        if subkey
+          result[keyname] ||= {}
+          result[keyname][subkey] = v1
+        elsif is_array
+          result[keyname] ||= []
+          result[keyname] << v1
+        else
+          result[keyname] = v1
+        end
+
+      when '-'
+        # remove something
+        if subkey
+          result[keyname].delete(subkey)
+        elsif is_array
+          result[keyname].delete_at(index.to_i)
+        else
+          result.delete(keyname)
+        end
+      end
+    end
+
+    result.delete_if {|k,v| v.nil? || v.empty?}
+
+    result
   end
 end
