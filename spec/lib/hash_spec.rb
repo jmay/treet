@@ -90,9 +90,17 @@ describe "shallow comparison of hashes" do
     h1 = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/bob1.json")
     h2 = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/bob2.json")
     diffs = h1.compare(h2)
-    diffs.should include(["~", "name.full", "Bob Smith", "Robert Smith"])
-    diffs.should include(["+", "business.organization", "Acme Inc."])
-    diffs.should include(["-", "other.notes", "some commentary"])
+    # diffs.should include(["~", "name.full", "Bob Smith", "Robert Smith"])
+    # diffs.should include(["+", "business.organization", "Acme Inc."])
+    # diffs.should include(["-", "other.notes", "some commentary"])
+    diffs.should == [
+      ["~", "name.full", "Bob Smith", "Robert Smith"],
+      ["-", "emails[2]", {"label"=>"other", "email"=>"bob@vacation.com"}],
+      ["-", "emails[0]", {"label"=>"home", "email"=>"bob@home.com"}],
+      ["+", "emails[]", {"label"=>"home", "email"=>"bob@newhome.com"}],
+      ["-", "other.notes", "some commentary"],
+      ["+", "business.organization", "Acme Inc."]
+    ]
 
     h3 = h1.patch(diffs)
     h3.compare(h2).should == []

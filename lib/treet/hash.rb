@@ -128,12 +128,16 @@ class Treet::Hash
         a1 = v1
         a2 = v2
 
+        deletions = []
         a1.each_with_index do |v1, i|
           if !a2.include?(v1)
             # element has been removed
-            diffs << ['-', "#{k}[#{i}]", v1]
+            deletions << ['-', "#{k}[#{i}]", v1]
           end
         end
+        # must prepare deletions in reverse order, because these specify the array index
+        # and if we delete forward then any subsequent indexes will be incorrect
+        diffs += deletions.reverse
 
         (a2 - a1).each do |v2|
           # new array element

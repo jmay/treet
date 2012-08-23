@@ -12,6 +12,10 @@
     {
       "label": "work",
       "email": "bob@work.com"
+    },
+    {
+      "label": "other",
+      "email": "bob@vacation.com"
     }
   ],
   "other": {
