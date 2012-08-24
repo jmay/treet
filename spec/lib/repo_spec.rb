@@ -12,7 +12,7 @@ describe "Repo" do
   it "should compare file trees to hashes" do
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one")
     repo.compare({'name' => {'full' => 'John Yaya'}}).should == [
-      ["~", "name.full", "John Bigbooté", "John Yaya"]
+      ["~", "name.full", "John Yaya", "John Bigbooté"]
     ]
   end
 

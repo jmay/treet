@@ -109,17 +109,17 @@ class Treet::Hash
       case v1
       when Hash
         (v2.keys - v1.keys).each do |k2|
-          # new sub-elements
+          # new sub-elements: (-, key, after-value)
           diffs << ['+', "#{k}.#{k2}", v2[k2]]
         end
         (v1.keys - v2.keys).each do |k2|
-          # deleted sub-elements
+          # deleted sub-elements: (-, key, before-value)
           diffs << ['-', "#{k}.#{k2}", v1[k2]]
         end
         (v1.keys & v2.keys).each do |k2|
           if v1[k2] != v2[k2]
-            # altered sub-elements
-            diffs << ['~', "#{k}.#{k2}", v1[k2], v2[k2]]
+            # altered sub-elements: (~, key, after-value, before-value-for-reference)
+            diffs << ['~', "#{k}.#{k2}", v2[k2], v1[k2]]
           end
         end
 
@@ -171,9 +171,9 @@ class Treet::Hash
         # change a value in place
 
         if subkey
-          result[keyname][subkey] = v2
+          result[keyname][subkey] = v1
         else
-          result[keyname] = v2
+          result[keyname] = v1
         end
 
       when '+'

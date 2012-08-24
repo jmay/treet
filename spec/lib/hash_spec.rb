@@ -94,7 +94,7 @@ describe "shallow comparison of hashes" do
     # diffs.should include(["+", "business.organization", "Acme Inc."])
     # diffs.should include(["-", "other.notes", "some commentary"])
     diffs.should == [
-      ["~", "name.full", "Bob Smith", "Robert Smith"],
+      ["~", "name.full", "Robert Smith", "Bob Smith"],
       ["-", "emails[2]", {"label"=>"other", "email"=>"bob@vacation.com"}],
       ["-", "emails[0]", {"label"=>"home", "email"=>"bob@home.com"}],
       ["+", "emails[]", {"label"=>"home", "email"=>"bob@newhome.com"}],
