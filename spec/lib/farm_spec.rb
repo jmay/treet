@@ -3,7 +3,7 @@ require "spec_helper"
 
 describe "Repository Farm" do
   it "should export as array of hashes with an xref value" do
-    farm = Treet::Farm.new("#{File.dirname(__FILE__)}/../repos/farm1", :xref => 'test')
+    farm = Treet::Farm.new(:root => "#{File.dirname(__FILE__)}/../repos/farm1", :xref => 'test')
     farm.export.should == [
       {
         'name' => {
