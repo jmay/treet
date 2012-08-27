@@ -9,6 +9,13 @@ describe "Repo" do
     }
   end
 
+  it "should generate optional " do
+    repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one")
+    repo.to_hash.should == {
+      'name' => {'full' => 'John Bigbooté'}
+    }
+  end
+
   it "should compare file trees to hashes" do
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one")
     repo.compare({'name' => {'full' => 'John Yaya'}}).should == [
