@@ -25,13 +25,41 @@ Or install it yourself as:
 
     require 'treet'
 
-    repo = Treet::Repo.new(directory)
     hash = Treet::Hash.new(jsonfile)
+    repo = Treet::Repo.new(directory)
+    farm = Treet::Farm.new(rootdir, :xref => 'label')
 
     hash = repo.to_hash
     repo = hash.to_repo(root)
+    hash = farm.export
 
     Treet.init(jsonfile, root) # when jsonfile contains an array which is exploded to multiple files
+
+## Concepts
+
+A *repo* is a directory that contains other files & directories. Any text files in this tree structure must contain JSON-formatted data.
+
+A *farm* is a directory containing one or more repos. When a farm is exported to JSON, each record is augmented with an xref value that contains the root filename of that repo.
+
+For example:
+
+    farm = Treet::Farm.new(rootdir, :xref => 'keycode')
+    puts farm.export
+
+should produce something like:
+
+    {
+      "subdir1": {
+        "field": "value"
+      },
+      "subdir2": {
+        "field": "value",
+        "field2": "value2"
+      },
+      "xref": {
+        "keycode": "repo-dir-name"
+      }
+    }
 
 ## Structures
 

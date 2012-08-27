@@ -52,7 +52,7 @@ class Treet::Hash
       data.each do |k,v|
         case v
         when Hash
-          File.open(k, "w") {|f| f << v.to_json}
+          File.open(k, "w") {|f| f << JSON.pretty_generate(v)}
 
         when Array
           Dir.mkdir(k)
@@ -64,7 +64,7 @@ class Treet::Hash
 
             else
               # store object contents as JSON into a generated filename
-              File.open("#{k}/#{i}", "w") {|f| f << v2.to_json}
+              File.open("#{k}/#{i}", "w") {|f| f << JSON.pretty_generate(v2)}
             end
           end
 
