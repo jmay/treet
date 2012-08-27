@@ -20,10 +20,14 @@ when 'explode'
   $stderr.puts "Wrote #{filecount} files to #{root}"
 
 when 'import'
-  path = args.first
+  # convert filetree to JSON
+
+  path, xrefkey = args
+  raise "usage: treet import root-dir xref-key" unless path & xrefkey
+
   if File.directory?(path)
     # convert filetree to JSON
-    repo = Treet::Repo.new(path)
+    repo = Treet::Repo.new(path, :xref => xrefkey)
     puts JSON.pretty_generate(repo.to_hash)
   else
     raise "treet import: could not find #{path}"

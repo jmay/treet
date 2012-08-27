@@ -30,5 +30,4 @@ describe "Repo" do
       }
     ].to_set
   end
-
 end
