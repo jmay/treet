@@ -20,13 +20,13 @@ when 'explode'
   $stderr.puts "Wrote #{filecount} files to #{root}"
 
 when 'import'
-
-  if File.file?(path)
+  path = args.first
+  if File.directory?(path)
     # convert filetree to JSON
-    repo = Treet::Repo.new(args.first)
+    repo = Treet::Repo.new(path)
     puts JSON.pretty_generate(repo.to_hash)
   else
-    raise "treet import: no such file #{path}"
+    raise "treet import: could not find #{path}"
   end
 
 else

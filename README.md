@@ -50,4 +50,5 @@ At the second level, arrays are converted to subdirectories named '0', '1', '2' 
 ## TODO
 
 * Enforce limitation on structure depth (top-level elements can contain flat hashes or arrays, nothing else)
-* Check all exception for explicit classes
+* refac: move diff stuff from hash.rb to Treet::Diff class, to encapsulate the structure of a diff (array of arrays); create methods for hunting for special stuff in a diff
+* Check all exceptions for explicit classes
