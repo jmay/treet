@@ -14,21 +14,23 @@ when 'expand'
 
 when 'explode'
   # convert JSON to filetree - multiple records
-  path, root = args
-  dir = Treet.init(path, root)
-  filecount = Dir.glob("#{dir}/*").count
-  $stderr.puts "Wrote #{filecount} files to #{root}"
+  path, root, xrefkey = args
+  farm = Treet::Farm.plant(:json => path, :root => root, :xref => xrefkey)
+  filecount = Dir.glob("#{farm.root}/*").count
+  $stderr.puts "Wrote #{filecount} files to #{farm.root}"
 
 when 'import'
   # convert filetree to JSON
 
   path, xrefkey = args
-  raise "usage: treet import root-dir xref-key" unless path & xrefkey
+  raise "usage: treet import root-dir xref-key" unless path && xrefkey
 
   if File.directory?(path)
     # convert filetree to JSON
-    repo = Treet::Repo.new(path, :xref => xrefkey)
-    puts JSON.pretty_generate(repo.to_hash)
+    farm = Treet::Farm.new(:root => path, :xref => xrefkey)
+    puts JSON.pretty_generate(farm.export)
+    # repo = Treet::Repo.new(path, :xref => xrefkey)
+    # puts JSON.pretty_generate(repo.to_hash)
   else
     raise "treet import: could not find #{path}"
   end

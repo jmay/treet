@@ -21,7 +21,13 @@ Or install it yourself as:
 
     $ gem install treet
 
-## Usage
+## Usage - Command Line
+
+    treet expand [path] [jsonfile]
+    treet explode [jsonfile] [rootdir]
+    treet import [rootdir] [xrefkey]
+
+## Usage - API
 
     require 'treet'
 
