@@ -41,7 +41,8 @@ when 'patch'
   root, patchfile, xrefkey = args
   patches = JSON.load(File.open(patchfile))
   farm = Treet::Farm.new(:root => root, :xref => xrefkey)
-  farm.patch(patches)
+  results = farm.patch(patches)
+  $stderr.puts "Patched #{results.count} records."
 
 else
   raise "usage: treet expand jsonfile root OR treet explore jsonfile root OR treet import root"

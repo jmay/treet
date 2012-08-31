@@ -38,9 +38,7 @@ class Treet::Farm
 
   # apply patches to a farm of repos
   def patch(patches)
-    patches.each do |k,diffs|
-      puts "APPLYING DIFF AGAINST #{k}"
-      p diffs
+    patches.map do |k,diffs|
       repos[k].patch(diffs)
     end
   end
