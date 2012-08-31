@@ -25,7 +25,7 @@ describe "Hash" do
     end
   end
 
-  it "should construct numbered subdirs from hash with array" do
+  it "should convert arrays to subdirs named with digests" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/two.json")
 
     Dir.mktmpdir() do |dir|
@@ -33,6 +33,10 @@ describe "Hash" do
       Dir.glob("#{dir}/emails/*").count.should == 2
       emails = Dir.glob("#{dir}/emails/*").map {|f| JSON.load(File.open(f))['email']}.to_set
       emails.should == ['johns@yoyodyne.com', "johns@lectroid.com"].to_set
+      hash.to_hash['emails'].each do |h|
+        filename = "#{dir}/emails/#{Treet::Hash.digestify(h)}"
+        File.exist?(filename).should be_true
+      end
       # File.read("#{dir}/emails/work/email").should == 'johns@yoyodyne.com'
     end
   end

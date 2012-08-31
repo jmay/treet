@@ -71,7 +71,9 @@ should produce something like:
 
 All the nodes at the top level are mapped to subdirectories.
 
-At the second level, arrays are converted to subdirectories named '0', '1', '2' etc. except that *for comparison purposes the order is ignored*.
+At the second level, arrays elements are converted to individual subdirectories. Subdirectories are
+named with unique digest values computed from the data contents. This means that duplicate entries
+are not allowed.
 
 ## Contributing
 

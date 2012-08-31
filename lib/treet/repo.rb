@@ -74,8 +74,8 @@ class Treet::Repo
             # data[fieldname] = v1
             # File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
           else
-            filename = rand(100)
-            puts "SAVE #{v1.inspect} to #{dirname}/XX#{filename}"
+            subfile = "#{dirname}/#{Treet::Hash.digestify(v1)}"
+            puts "SAVE #{v1.inspect} to #{subfile}"
             # Dir.mkdir(dirname) unless Dir.exists?(dirname)
             # File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(v1)}
           end
@@ -92,9 +92,11 @@ class Treet::Repo
             #   File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
             # end
           else
-            puts "DELETE #{dirname}/#{filename}"
+            subfile = "#{dirname}/#{Treet::Hash.digestify(v1)}"
+            puts "DELETE #{subfile} FORMERLY #{v1}"
             # Dir.mkdir(dirname) unless Dir.exists?(dirname)
             # File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(v1)}
+            # TODO: delete {dirname} if empty? is it worth the trouble to clean up these dirs?
           end
         end
       end

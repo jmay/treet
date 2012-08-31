@@ -1,6 +1,7 @@
 # encoding: UTF-8
 
 require "json"
+require "digest/sha1"
 
 class Treet::Hash
   attr_reader :data
@@ -40,6 +41,10 @@ class Treet::Hash
     Treet::Hash.new(newhash)
   end
 
+  def self.digestify(hash)
+    Digest::SHA1.hexdigest(hash.to_a.sort.flatten.join)
+  end
+
   private
 
   def construct(data, filename)
@@ -56,7 +61,7 @@ class Treet::Hash
 
         when Array
           Dir.mkdir(k)
-          v.each_with_index do |v2, i|
+          v.each do |v2|
             case v2
             when String
               # create empty file with this name
@@ -64,7 +69,8 @@ class Treet::Hash
 
             else
               # store object contents as JSON into a generated filename
-              File.open("#{k}/#{i}", "w") {|f| f << JSON.pretty_generate(v2)}
+              subfile = "#{k}/#{Treet::Hash.digestify(v2)}"
+              File.open(subfile, "w") {|f| f << JSON.pretty_generate(v2)}
             end
           end
 
