@@ -62,40 +62,40 @@ class Treet::Repo
           # change a value in place
           # assumes that filename already exists
           puts "UPDATE #{v1} to #{filename}:#{fieldname}"
-          # data = JSON.load(File.open("#{dirname}/#{filename}"))
-          # data[fieldname] = v1
-          # File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
+          data = JSON.load(File.open("#{dirname}/#{filename}"))
+          data[fieldname] = v1
+          File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
 
         when '+'
           # add something
           if fieldname
             puts "WRITE #{v1.inspect} to #{filename}:#{fieldname}"
-            # data = JSON.load(File.open("#{dirname}/#{filename}"))
-            # data[fieldname] = v1
-            # File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
+            data = JSON.load(File.open("#{dirname}/#{filename}"))
+            data[fieldname] = v1
+            File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
           else
             subfile = "#{dirname}/#{Treet::Hash.digestify(v1)}"
             puts "SAVE #{v1.inspect} to #{subfile}"
-            # Dir.mkdir(dirname) unless Dir.exists?(dirname)
-            # File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(v1)}
+            Dir.mkdir(dirname) unless Dir.exists?(dirname)
+            File.open(subfile, "w") {|f| f << JSON.pretty_generate(v1)}
           end
 
         when '-'
           # remove something
           if fieldname
             puts "DELETE #{filename}:#{fieldname}"
-            # data = JSON.load(File.open("#{dirname}/#{filename}"))
-            # data.delete(fieldname)
-            # if data.empty?
-            #   File.delete(filename)
-            # else
-            #   File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
-            # end
+            data = JSON.load(File.open("#{dirname}/#{filename}"))
+            data.delete(fieldname)
+            if data.empty?
+              File.delete(filename)
+            else
+              File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
+            end
           else
             subfile = "#{dirname}/#{Treet::Hash.digestify(v1)}"
             puts "DELETE #{subfile} FORMERLY #{v1}"
-            # Dir.mkdir(dirname) unless Dir.exists?(dirname)
-            # File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(v1)}
+            Dir.mkdir(dirname) unless Dir.exists?(dirname)
+            File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(v1)}
             # TODO: delete {dirname} if empty? is it worth the trouble to clean up these dirs?
           end
         end
