@@ -35,6 +35,14 @@ when 'import'
     raise "treet import: could not find #{path}"
   end
 
+when 'patch'
+  # ingest patches in JSON form & apply to the specified filetree
+
+  root, patchfile, xrefkey = args
+  patches = JSON.load(File.open(patchfile))
+  farm = Treet::Farm.new(:root => root, :xref => xrefkey)
+  farm.patch(patches)
+
 else
   raise "usage: treet expand jsonfile root OR treet explore jsonfile root OR treet import root"
 end

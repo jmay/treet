@@ -1,19 +1,23 @@
 # encoding: UTF-8
 
 class Treet::Farm
-  attr_reader :repos, :root, :xref
+  attr_reader :repos, :root, :xrefkey
 
   def initialize(opts)
     @root = opts[:root]
-    @xref = opts[:xref]
+    @xrefkey = opts[:xref]
 
-    @repos = Dir.glob("#{root}/*").map do |subdir|
-      Treet::Repo.new(subdir, :xref => File.basename(subdir))
+    @repos = {}
+    Dir.glob("#{root}/*").each do |subdir|
+      xref = File.basename(subdir)
+      @repos[xref] = Treet::Repo.new(subdir, :xref => xref)
     end
   end
 
+  # export as an array, not as a hash
+  # the xref for each repo will be included under `xref.{xrefkey}`
   def export
-    repos.map {|repo| repo.to_hash(:xref => @xref)}
+    repos.map {|xref,repo| repo.to_hash(:xref => @xrefkey)}
   end
 
   def self.plant(opts)
@@ -31,4 +35,14 @@ class Treet::Farm
 
     Treet::Farm.new(:root => rootdir, :xref => opts[:xref])
   end
+
+  # apply patches to a farm of repos
+  def patch(patches)
+    patches.each do |k,diffs|
+      puts "APPLYING DIFF AGAINST #{k}"
+      p diffs
+      repos[k].patch(diffs)
+    end
+  end
+
 end
