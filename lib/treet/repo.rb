@@ -109,11 +109,14 @@ class Treet::Repo
 
   def expand_json(path)
     if File.file?(path)
-      begin
-        JSON.load(File.open(path))
-      rescue JSON::ParserError => e
-        $stderr.puts "JSON syntax error in #{path}"
-        nil
+      if File.zero?(path)
+        # empty files are just keys or string elements in an array
+        File.basename(path)
+      else
+        # if file contents is JSON, then parse it
+        # otherwise treat it as a raw string value
+        s = File.read(path)
+        JSON.load(s) rescue s
       end
     else
       # should be a subdirectory containing files named with numbers, each containing JSON
