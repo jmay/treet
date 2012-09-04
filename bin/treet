@@ -1,49 +1,59 @@
 #!/usr/bin/env ruby
 
 require 'treet'
+require "thor"
 
-command,*args = ARGV
+class TreetCommand < Thor
+  desc "export ROOTDIR", "convert a collection of repositories to a single JSON blob"
+  method_option :xref, :desc => "optional fieldname to be added under `xref` with basename of repository"
+  def export(path)
+    # if !File.directory?(path)
+    #   raise "treet export: could not find #{path}"
+    # end
 
-case command
-when 'expand'
-  # convert JSON to filetree - single record
-  path, root = args
-  hash = Treet::Hash.new(path)
-  hash.to_repo(root)
-  $stderr.puts "Wrote files to directory tree under #{root}"
-
-when 'explode'
-  # convert JSON to filetree - multiple records
-  path, root, xrefkey = args
-  farm = Treet::Farm.plant(:json => path, :root => root, :xref => xrefkey)
-  filecount = Dir.glob("#{farm.root}/*").count
-  $stderr.puts "Wrote #{filecount} files to #{farm.root}"
-
-when 'import'
-  # convert filetree to JSON
-
-  path, xrefkey = args
-  raise "usage: treet import root-dir xref-key" unless path && xrefkey
-
-  if File.directory?(path)
-    # convert filetree to JSON
-    farm = Treet::Farm.new(:root => path, :xref => xrefkey)
-    puts JSON.pretty_generate(farm.export)
-    # repo = Treet::Repo.new(path, :xref => xrefkey)
-    # puts JSON.pretty_generate(repo.to_hash)
-  else
-    raise "treet import: could not find #{path}"
+    farm = Treet::Farm.new(:root => path, :xref => options[:xref])
+    jj farm.export
   end
 
-when 'patch'
-  # ingest patches in JSON form & apply to the specified filetree
 
-  root, patchfile, xrefkey = args
-  patches = JSON.load(File.open(patchfile))
-  farm = Treet::Farm.new(:root => root, :xref => xrefkey)
-  results = farm.patch(patches)
-  $stderr.puts "Patched #{results.count} records."
+  desc "create JSONFILE", "build a single repository from a JSON file"
+  method_option :root, :required => true
+  def create(jsonfile)
+    hash = Treet::Hash.new(jsonfile)
+    hash.to_repo(options[:root])
+    $stderr.puts "Wrote repository to #{options[:root]}"
+  end
 
-else
-  raise "usage: treet expand jsonfile root OR treet explore jsonfile root OR treet import root"
+
+  desc "show DIRECTORY", "convert a single repository to a JSON blob"
+  def show(path)
+    repo = Treet::Repo.new(path)
+    jj repo.to_hash
+  end
+
+
+  desc "explode JSONFILE", "Build a collection of repositories from a JSON file"
+  method_option :root, :required => true, :desc => "where to create repositories (will be created if does not exist)"
+  def explode(jsonfile)
+    if !File.directory?(options[:root])
+      Dir.mkdir(options[:root])
+    end
+
+    farm = Treet::Farm.plant(:json => jsonfile, :root => options[:root])
+    filecount = Dir.glob("#{farm.root}/*").count
+    $stderr.puts "Wrote #{filecount} files to #{farm.root}"
+  end
+
+
+  desc "patch JSONFILE", "Apply patches from file to specified repository tree"
+  method_option :root, :required => true, :desc => "where to find repositories to patch"
+  method_option :xref, :required => true, :desc => "fieldname under `xref` to use for repository identification"
+  def patch(patchfile)
+    patches = JSON.load(File.open(patchfile))
+    farm = Treet::Farm.new(:root => options[:root], :xref => options[:xref])
+    results = farm.patch(patches)
+    $stderr.puts "Patched #{results.count} records."
+  end
 end
+
+TreetCommand.start

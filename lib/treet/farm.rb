@@ -4,13 +4,18 @@ class Treet::Farm
   attr_reader :repos, :root, :xrefkey
 
   def initialize(opts)
+    raise Errno::ENOENT unless File.directory?(opts[:root])
+
     @root = opts[:root]
     @xrefkey = opts[:xref]
 
     @repos = {}
     Dir.glob("#{root}/*").each do |subdir|
-      xref = File.basename(subdir)
-      @repos[xref] = Treet::Repo.new(subdir, :xref => xref)
+      # in a Farm we are looking for repositories under the root
+      if File.directory?(subdir)
+        xref = File.basename(subdir)
+        @repos[xref] = Treet::Repo.new(subdir, :xref => xref)
+      end
     end
   end
 
