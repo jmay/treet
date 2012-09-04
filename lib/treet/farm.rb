@@ -14,7 +14,7 @@ class Treet::Farm
       # in a Farm we are looking for repositories under the root
       if File.directory?(subdir)
         xref = File.basename(subdir)
-        @repos[xref] = Treet::Repo.new(subdir, :xref => xref)
+        @repos[xref] = Treet::Repo.new(subdir, :xrefkey => xrefkey, :xref => xref)
       end
     end
   end
@@ -22,7 +22,7 @@ class Treet::Farm
   # export as an array, not as a hash
   # the xref for each repo will be included under `xref.{xrefkey}`
   def export
-    repos.map {|xref,repo| repo.to_hash(:xref => @xrefkey)}
+    repos.map {|xref,repo| repo.to_hash}
   end
 
   def self.plant(opts)
@@ -48,4 +48,7 @@ class Treet::Farm
     end
   end
 
+  def [](xref)
+    repos[xref]
+  end
 end

@@ -45,4 +45,10 @@ describe "Repository Farm" do
     Dir.glob("#{farm.root}/*/emails/*").count.should == 5
     Dir.glob("#{farm.root}/*/addresses/*").count.should == 1
   end
+
+  it "should be retrievable by repo label/xref" do
+    farm = Treet::Farm.new(:root => "#{File.dirname(__FILE__)}/../repos/farm1", :xref => 'test')
+    farm['two'].root.should == "#{File.dirname(__FILE__)}/../repos/farm1/two"
+    farm['two'].to_hash['xref'].should == {'test' => 'two'}
+  end
 end

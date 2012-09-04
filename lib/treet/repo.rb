@@ -13,8 +13,8 @@ class Treet::Repo
     @opts = opts
   end
 
-  def to_hash(opts = {})
-    @hash ||= expand(root, opts)
+  def to_hash
+    @hash ||= expand(root)
   end
 
   def compare(target)
@@ -127,13 +127,13 @@ class Treet::Repo
     end
   end
 
-  def expand(path, opts = {})
+  def expand(path)
     files = Dir.entries(path).select {|f|  f !~ /^\./}
     hash = files.each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
 
     if opts[:xref]
       hash['xref'] ||= {}
-      hash['xref'][opts[:xref]] = @opts[:xref]
+      hash['xref'][opts[:xrefkey]] = opts[:xref]
     end
     hash
   end

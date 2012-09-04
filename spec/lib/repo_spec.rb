@@ -43,4 +43,12 @@ describe "Repo" do
     Treet::Repo.filefor("address[1]").should == ['address', '1', nil]
     Treet::Repo.filefor("emails[]").should == ['emails', "", nil]
   end
+
+  it "should added xref keys when specified" do
+    repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one", :xrefkey => 'foo', :xref => 'bar')
+    repo.to_hash.should == {
+      'name' => {'full' => 'John Bigbooté'},
+      'xref' => {'foo' => 'bar'}
+    }
+  end
 end
