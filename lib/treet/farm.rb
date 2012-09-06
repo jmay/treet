@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+require "uuidtools"
+
 class Treet::Farm
   attr_reader :repos, :root, :xrefkey
 

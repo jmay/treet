@@ -57,24 +57,26 @@ class Treet::Repo
         end
 
         dirname, filename, fieldname = Treet::Repo.filefor(key)
+        filepath = "#{dirname}/#{filename}"
         case flag
         when '~'
           # change a value in place
           # assumes that filename already exists
           # load the current data & overwrite with the new value
           # idempotent: this will overwrite the file with the same contents
-          data = JSON.load(File.open("#{dirname}/#{filename}"))
+          data = JSON.load(File.open(filepath))
           data[fieldname] = v1
-          File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
+          File.open(filepath, "w") {|f| f << JSON.pretty_generate(data)}
 
         when '+'
           # add something
           if fieldname
             # writing a value into a hash
             # idempotent: this will overwrite the file with the same contents
-            data = JSON.load(File.open("#{dirname}/#{filename}"))
+            data = File.exists?(filepath) ? JSON.load(File.open(filepath)) : {}
             data[fieldname] = v1
-            File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
+            Dir.mkdir(dirname) unless Dir.exists?(dirname)
+            File.open(filepath, "w") {|f| f << JSON.pretty_generate(data)}
           else
             # writing an entire hash into an array entry
             # idempotent: this will overwrite the file with the same contents
@@ -86,12 +88,12 @@ class Treet::Repo
         when '-'
           # remove something
           if fieldname
-            data = JSON.load(File.open("#{dirname}/#{filename}"))
+            data = JSON.load(File.open(filepath))
             data.delete(fieldname)
             if data.empty?
               File.delete(filename)
             else
-              File.open("#{dirname}/#{filename}", "w") {|f| f << JSON.pretty_generate(data)}
+              File.open(filepath, "w") {|f| f << JSON.pretty_generate(data)}
             end
           else
             subfile = "#{dirname}/#{Treet::Hash.digestify(v1)}"

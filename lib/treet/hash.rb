@@ -24,6 +24,7 @@ class Treet::Hash
 
   def to_repo(root)
     construct(data, root)
+    Treet::Repo.new(root)
   end
 
   def to_hash
