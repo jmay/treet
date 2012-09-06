@@ -151,9 +151,17 @@ class Treet::Hash
           diffs << ['+', "#{k}[]", v2]
         end
 
-      else
-        # TODO add StandardError class
-        raise "Data structure invalid at '#{k}': only Hash and Array members are permitted"
+      else # scalar values
+        if v1 != v2
+          if v1.nil?
+            diffs << ['+', k, v2]
+          elsif v2.nil?
+            diffs << ['-', k, v1]
+          else
+            diffs << ['~', k, v2, v1]
+          end
+        end
+
       end
     end
 

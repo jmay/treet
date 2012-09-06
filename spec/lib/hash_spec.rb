@@ -81,6 +81,14 @@ describe "Hash" do
       Dir.glob("#{dir}/contacts/*").count.should == 7
     end
   end
+
+  it "should allow comparison of string (not hash) members" do
+    h1 = Treet::Hash.new({'name' => 'Bob'})
+    h2 = Treet::Hash.new({'name' => 'Sally'})
+    h1.compare(h2).should == [
+      ['~', 'name', 'Sally', 'Bob']
+    ]
+  end
 end
 
 describe "shallow comparison of hashes" do
@@ -109,4 +117,5 @@ describe "shallow comparison of hashes" do
     h3 = h1.patch(diffs)
     h3.compare(h2).should == []
   end
+
 end
