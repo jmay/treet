@@ -54,6 +54,11 @@ class TreetCommand < Thor
     results = farm.patch(patches)
     $stderr.puts "Patched #{results.count} records."
   end
+
+  desc "version", "show Treet version"
+  def version
+    puts "Treet #{Treet::VERSION}"
+  end
 end
 
 TreetCommand.start
