@@ -133,7 +133,7 @@ class Treet::Repo
     files = Dir.entries(path).select {|f|  f !~ /^\./}
     hash = files.each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
 
-    if opts[:xref]
+    if opts[:xrefkey]
       hash['xref'] ||= {}
       hash['xref'][opts[:xrefkey]] = opts[:xref]
     end
