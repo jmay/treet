@@ -24,12 +24,12 @@ class Treet::Repo
 
   # patch keys can look like
   #   name.first
-  #   addresses[0]
   #   emails[]
+  # (address[1] syntax has been eliminated, we recognize array elements by matching the entire content)
   def self.filefor(keyname)
     if keyname =~ /\[/
-      keyname, is_array, index = keyname.match(/^(.*)(\[)(.*)\]$/).captures
-      [keyname, index, nil]
+      keyname, is_array, index = keyname.match(/^(.*)(\[\])$/).captures
+      [keyname, '', nil]
     elsif keyname =~ /\./
       # subelement
       filename,field = keyname.split('.')
@@ -40,16 +40,15 @@ class Treet::Repo
   end
 
   # Patching a repo is not the same as patching a hash. Make the changes
-  # directly to the data files. Invalidate any cached hash image so it
-  # will be reloaded.
+  # directly to the data files.
   def patch(diffs)
-    @hash = nil
+    @hash = nil # invalidate any cached image
 
     Dir.chdir(root) do
       diffs.each do |diff|
         flag, key, v1, v2 = diff
         if key =~ /\[/
-          keyname, is_array, index = key.match(/^(.*)(\[)(.*)\]$/).captures
+          keyname, is_array = key.match(/^(.*)(\[\])$/).captures
         elsif key =~ /\./
           keyname, subkey = key.match(/^(.*)\.(.*)$/).captures
         else
@@ -96,6 +95,7 @@ class Treet::Repo
               File.open(filepath, "w") {|f| f << JSON.pretty_generate(data)}
             end
           else
+            # this is an array, we look for a match on the entire contents via digest
             subfile = "#{dirname}/#{Treet::Hash.digestify(v1)}"
             File.delete(subfile) if File.exists?(subfile) # need the existence check for idempotence
             # TODO: if dirname is now empty, should it be removed? is that worthwhile?

@@ -104,6 +104,11 @@ class Treet::Hash
     end
   end
 
+  # Diffs need to be idempotent when applied via patch.
+  # Therefore we can't specify individual index positions for an array, because items can move.
+  # Instead, we must include the entire contents of the sub-hash, and during the patch process
+  # compare that against each element in the array.
+  # This means that an array cannot have exact duplicate entries.
   def self.diff(hash1, hash2)
     diffs = []
 
@@ -131,24 +136,16 @@ class Treet::Hash
         end
 
       when Array
-        # assume that arrays have been sorted per `normalize`
-        a1 = v1
-        a2 = v2
-
-        deletions = []
-        a1.each_with_index do |v1, i|
-          if !a2.include?(v1)
+        v1.each do |e1|
+          if !v2.include?(e1)
             # element has been removed
-            deletions << ['-', "#{k}[#{i}]", v1]
+            diffs << ['-', "#{k}[]", e1]
           end
         end
-        # must prepare deletions in reverse order, because these specify the array index
-        # and if we delete forward then any subsequent indexes will be incorrect
-        diffs += deletions.reverse
 
-        (a2 - a1).each do |v2|
+        (v2 - v1).each do |e2|
           # new array element
-          diffs << ['+', "#{k}[]", v2]
+          diffs << ['+', "#{k}[]", e2]
         end
 
       else # scalar values
@@ -174,7 +171,7 @@ class Treet::Hash
     diffs.each do |diff|
       flag, key, v1, v2 = diff
       if key =~ /\[/
-        keyname, is_array, index = key.match(/^(.*)(\[)(.*)\]$/).captures
+        keyname, is_array = key.match(/^(.*)(\[\])$/).captures
       elsif key =~ /\./
         keyname, subkey = key.match(/^(.*)\.(.*)$/).captures
       else
@@ -208,7 +205,7 @@ class Treet::Hash
         if subkey
           result[keyname].delete(subkey)
         elsif is_array
-          result[keyname].delete_at(index.to_i)
+          result[keyname].delete_if {|v| v == v1}
         else
           result.delete(keyname)
         end

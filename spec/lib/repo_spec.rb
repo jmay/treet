@@ -41,7 +41,6 @@ describe "Repo" do
 
   it "should generate file paths correctly from key paths in patches" do
     Treet::Repo.filefor("name.first").should == [".", "name", "first"]
-    Treet::Repo.filefor("address[1]").should == ['address', '1', nil]
     Treet::Repo.filefor("emails[]").should == ['emails', "", nil]
   end
 

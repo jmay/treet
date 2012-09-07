@@ -59,7 +59,7 @@ describe "Hash" do
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/three")
 
     hash.compare(repo).should == [
-      ["-", "emails[0]", {"label"=>"home", "email"=>"johns@lectroid.com"}],
+      ["-", "emails[]", {"label"=>"home", "email"=>"johns@lectroid.com"}],
       ["+", "emails[]", {"label"=>"home", "email"=>"johnsmallberries@lectroid.com"}]
     ]
     # hash.compare(repo).should == [["~", "email.home.email", "johns@lectroid.com", "johnsmallberries@lectroid.com"]]
@@ -68,7 +68,7 @@ describe "Hash" do
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/four")
 
     hash.compare(repo).should == [
-      ["-", "emails[0]", {"label"=>"home", "email"=>"johns@lectroid.com"}],
+      ["-", "emails[]", {"label"=>"home", "email"=>"johns@lectroid.com"}],
       ["+", "emails[]", {"label"=>"home", "email"=>"johnsmallberries@lectroid.com"}]
     ]
     # hash.compare(repo).should == [["~", "email.home.email", "johns@lectroid.com", "johnsmallberries@lectroid.com"]]
@@ -107,8 +107,8 @@ describe "shallow comparison of hashes" do
     # diffs.should include(["-", "other.notes", "some commentary"])
     diffs.should == [
       ["~", "name.full", "Robert Smith", "Bob Smith"],
-      ["-", "emails[2]", {"label"=>"other", "email"=>"bob@vacation.com"}],
-      ["-", "emails[0]", {"label"=>"home", "email"=>"bob@home.com"}],
+      ["-", "emails[]", {"label"=>"home", "email"=>"bob@home.com"}],
+      ["-", "emails[]", {"label"=>"other", "email"=>"bob@vacation.com"}],
       ["+", "emails[]", {"label"=>"home", "email"=>"bob@newhome.com"}],
       ["-", "other.notes", "some commentary"],
       ["+", "business.organization", "Acme Inc."]
