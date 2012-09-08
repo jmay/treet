@@ -51,4 +51,15 @@ describe "Repository Farm" do
     farm['two'].root.should == "#{File.dirname(__FILE__)}/../repos/farm1/two"
     farm['two'].to_hash['xref'].should == {'test' => 'two'}
   end
+
+  it "should take additions" do
+    farm = Treet::Farm.plant(:json => "#{File.dirname(__FILE__)}/../json/master.json", :root => Dir.mktmpdir)
+
+    bob_hash = load_json("bob1")
+    repo = farm.add(bob_hash)
+    repo.root.should =~ /#{farm.root}/
+    Dir.glob("#{farm.root}/*").count.should == 4
+
+    FileUtils.rm_rf(farm.root)
+  end
 end

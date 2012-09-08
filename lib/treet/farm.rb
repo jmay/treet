@@ -58,8 +58,8 @@ class Treet::Farm
 
   # add a new repo, with data from an input hash
   def add(hash)
-    # uuid = UUIDTools::UUID.random_create.to_s
-    # thash = Treet::Hash.new(h)
-    # repo = thash.to_repo(uuid)
+    uuid = UUIDTools::UUID.random_create.to_s
+    thash = Treet::Hash.new(hash)
+    thash.to_repo("#{root}/#{uuid}")
   end
 end

@@ -11,3 +11,7 @@ require "fileutils"
 
 RSpec.configure do |config|
 end
+
+def load_json(filename)
+  JSON.load(File.open("#{File.dirname(__FILE__)}/json/#{filename}.json"))
+end
