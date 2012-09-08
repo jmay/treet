@@ -1,6 +1,5 @@
 # encoding: UTF-8
 require "spec_helper"
-require "tmpdir"
 
 describe "Hash" do
   it "should inject JSON" do
@@ -19,7 +18,7 @@ describe "Hash" do
   it "should generate repo from hash" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
 
-    Dir.mktmpdir() do |dir|
+    Dir.mktmpdir do |dir|
       hash.to_repo(dir)
       JSON.load(File.open("#{dir}/name")).should == {'full' => 'John Bigbooté'}
     end
@@ -28,7 +27,7 @@ describe "Hash" do
   it "should convert arrays to subdirs named with digests" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/two.json")
 
-    Dir.mktmpdir() do |dir|
+    Dir.mktmpdir do |dir|
       hash.to_repo(dir)
       Dir.glob("#{dir}/emails/*").count.should == 2
       emails = Dir.glob("#{dir}/emails/*").map {|f| JSON.load(File.open(f))['email']}.to_set
@@ -76,7 +75,7 @@ describe "Hash" do
 
   it "should expand arrays of strings to empty files" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/group.json")
-    Dir.mktmpdir() do |dir|
+    Dir.mktmpdir do |dir|
       hash.to_repo(dir)
       Dir.glob("#{dir}/contacts/*").count.should == 7
     end

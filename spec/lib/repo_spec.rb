@@ -1,6 +1,5 @@
 # encoding: UTF-8
 require "spec_helper"
-require "tmpdir"
 
 describe "Repo" do
   it "should convert file trees to hashes" do
@@ -54,7 +53,7 @@ describe "Repo" do
 
   it "should take patches that add values to missing elements" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
-    Dir.mktmpdir() do |dir|
+    Dir.mktmpdir do |dir|
       repo = hash.to_repo(dir)
       repo.patch([
         [
