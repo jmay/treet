@@ -27,6 +27,8 @@ class Treet::Farm
     repos.map {|xref,repo| repo.to_hash}
   end
 
+  # "plant" a new farm: given an array of hashes (in JSON), create a directory
+  # of Treet repositories, one per hash. Generate directory names for each repo.
   def self.plant(opts)
     jsonfile = opts[:json]
     rootdir = opts[:root]
@@ -52,5 +54,12 @@ class Treet::Farm
 
   def [](xref)
     repos[xref]
+  end
+
+  # add a new repo, with data from an input hash
+  def add(hash)
+    uuid = UUIDTools::UUID.random_create.to_s
+    thash = Treet::Hash.new(hash)
+    thash.to_repo("#{root}/#{uuid}")
   end
 end
