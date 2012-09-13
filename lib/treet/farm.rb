@@ -3,22 +3,27 @@
 require "uuidtools"
 
 class Treet::Farm
-  attr_reader :repos, :root, :xrefkey
+  attr_reader :root, :xrefkey
 
   def initialize(opts)
     raise Errno::ENOENT unless File.directory?(opts[:root])
 
     @root = opts[:root]
     @xrefkey = opts[:xref]
+  end
 
-    @repos = {}
-    Dir.glob("#{root}/*").each do |subdir|
+  def repos
+    @repos_cache ||= Dir.glob("#{root}/*").each_with_object({}) do |subdir,h|
       # in a Farm we are looking for repositories under the root
       if File.directory?(subdir)
         xref = File.basename(subdir)
-        @repos[xref] = Treet::Repo.new(subdir, :xrefkey => xrefkey, :xref => xref)
+        h[xref] = Treet::Repo.new(subdir, :xrefkey => xrefkey, :xref => xref)
       end
     end
+  end
+
+  def reset
+    @repos_cache = nil
   end
 
   # export as an array, not as a hash
@@ -38,7 +43,7 @@ class Treet::Farm
       array_of_hashes.each do |h|
         uuid = UUIDTools::UUID.random_create.to_s
         thash = Treet::Hash.new(h)
-        repo = thash.to_repo(uuid)
+        thash.to_repo(uuid)
       end
     end
 
