@@ -60,10 +60,9 @@ class Treet::Repo
         case flag
         when '~'
           # change a value in place
-          # assumes that filename already exists
           # load the current data & overwrite with the new value
           # idempotent: this will overwrite the file with the same contents
-          data = JSON.load(File.open(filepath))
+          data = File.exists?(filepath) ? JSON.load(File.open(filepath)) : {}
           data[fieldname] = v1
           File.open(filepath, "w") {|f| f << JSON.pretty_generate(data)}
 

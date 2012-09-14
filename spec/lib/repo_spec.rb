@@ -72,4 +72,20 @@ describe "Repo" do
       newhash['foo']['bar'].should == 'new value'
     end
   end
+
+  it "should accept patches that edit inside missing subhashes" do
+    hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
+    Dir.mktmpdir do |dir|
+      repo = hash.to_repo(dir)
+      repo.patch([
+        [
+          "~",
+          "foo.bar",
+          "new value"
+        ]
+      ])
+      newhash = repo.to_hash
+      newhash['foo']['bar'].should == 'new value'
+    end
+  end
 end
