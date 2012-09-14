@@ -61,7 +61,7 @@ class Treet::Hash
           File.open(k, "w") {|f| f << JSON.pretty_generate(v)}
 
         when Array
-          Dir.mkdir(k)
+          Dir.mkdir(k.to_s)
           v.each do |v2|
             case v2
             when String
@@ -76,7 +76,7 @@ class Treet::Hash
           end
 
         when String
-          File.open(k, "w") {|f| f << v}
+          File.open(k.to_s, "w") {|f| f << v}
 
         else
           raise "Unsupported object type #{v.class} for '#{k}'"

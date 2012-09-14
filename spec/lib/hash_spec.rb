@@ -34,7 +34,7 @@ describe "Hash" do
       emails.should == ['johns@yoyodyne.com', "johns@lectroid.com"].to_set
       hash.to_hash['emails'].each do |h|
         filename = "#{dir}/emails/#{Treet::Hash.digestify(h)}"
-        File.exist?(filename).should be_true
+        File.should exist(filename)
       end
       # File.read("#{dir}/emails/work/email").should == 'johns@yoyodyne.com'
     end
@@ -117,4 +117,16 @@ describe "shallow comparison of hashes" do
     h3.compare(h2).should == []
   end
 
+  describe "arrays of strings should build lists of filenames" do
+    hash = Treet::Hash.new(
+        :name => 'Foo Bar',
+        :entries => ["abc", "def", "ghi"]
+      )
+    Dir.mktmpdir do |dir|
+      hash.to_repo(dir)
+      Dir.glob("#{dir}/entries/*").count.should == 3
+      File.exist?("#{dir}/entries/def").should == true
+      File.exist?("#{dir}/entries/bogus").should == false
+    end
+  end
 end
