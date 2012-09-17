@@ -28,14 +28,14 @@ class Treet::Repo
   # (address[1] syntax has been eliminated, we recognize array elements by matching the entire content)
   def self.filefor(keyname)
     if keyname =~ /\[/
-      keyname, is_array, index = keyname.match(/^(.*)(\[\])$/).captures
+      keyname = keyname.match(/^(.*)\[\]$/).captures.first
       [keyname, '', nil]
     elsif keyname =~ /\./
       # subelement
       filename,field = keyname.split('.')
       ['.', filename, field]
     else
-      [nil, keyname]
+      ['.', keyname]
     end
   end
 
@@ -47,13 +47,13 @@ class Treet::Repo
     Dir.chdir(root) do
       diffs.each do |diff|
         flag, key, v1, v2 = diff
-        if key =~ /\[/
-          keyname, is_array = key.match(/^(.*)(\[\])$/).captures
-        elsif key =~ /\./
-          keyname, subkey = key.match(/^(.*)\.(.*)$/).captures
-        else
-          keyname = key
-        end
+        # if key =~ /\[/
+        #   keyname = key.match(/^(.*)\[\]$/).captures
+        # elsif key =~ /\./
+        #   keyname, subkey = key.match(/^(.*)\.(.*)$/).captures
+        # else
+        #   keyname = key
+        # end
 
         dirname, filename, fieldname = Treet::Repo.filefor(key)
         filepath = "#{dirname}/#{filename}"
@@ -62,9 +62,15 @@ class Treet::Repo
           # change a value in place
           # load the current data & overwrite with the new value
           # idempotent: this will overwrite the file with the same contents
-          data = File.exists?(filepath) ? JSON.load(File.open(filepath)) : {}
-          data[fieldname] = v1
-          File.open(filepath, "w") {|f| f << JSON.pretty_generate(data)}
+          if fieldname
+            # hash entry
+            data = File.exists?(filepath) ? JSON.load(File.open(filepath)) : {}
+            data[fieldname] = v1
+            File.open(filepath, "w") {|f| f << JSON.pretty_generate(data)}
+          else
+            # string entry
+            File.open(filepath, "w") {|f| f << v1}
+          end
 
         when '+'
           # add something

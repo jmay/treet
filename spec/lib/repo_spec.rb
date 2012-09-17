@@ -41,6 +41,7 @@ describe "Repo" do
   it "should generate file paths correctly from key paths in patches" do
     Treet::Repo.filefor("name.first").should == [".", "name", "first"]
     Treet::Repo.filefor("emails[]").should == ['emails', "", nil]
+    Treet::Repo.filefor("topvalue").should == ['.', "topvalue"]
   end
 
   it "should added xref keys when specified" do
@@ -86,6 +87,22 @@ describe "Repo" do
       ])
       newhash = repo.to_hash
       newhash['foo']['bar'].should == 'new value'
+    end
+  end
+
+  it "should accept patches that update top-level values" do
+    hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/four.json")
+    Dir.mktmpdir do |dir|
+      repo = hash.to_repo(dir)
+      repo.patch([
+        [
+          "~",
+          "title",
+          "Updated Title"
+        ]
+      ])
+      newhash = repo.to_hash
+      newhash['title'].should == 'Updated Title'
     end
   end
 end
