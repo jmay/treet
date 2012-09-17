@@ -103,6 +103,16 @@ describe "Repo" do
       ])
       newhash = repo.to_hash
       newhash['title'].should == 'Updated Title'
+
+      repo.patch([
+        [
+          "-",
+          "datalist[]",
+          "two"
+        ]
+      ])
+      newhash = repo.to_hash
+      newhash['datalist'].count.should == 2
     end
   end
 end

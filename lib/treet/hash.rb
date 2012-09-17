@@ -42,8 +42,13 @@ class Treet::Hash
     Treet::Hash.new(newhash)
   end
 
-  def self.digestify(hash)
-    Digest::SHA1.hexdigest(hash.to_a.sort.flatten.join)
+  def self.digestify(data)
+    case data
+    when Hash
+      Digest::SHA1.hexdigest(data.to_a.sort.flatten.join)
+    else # String
+      data
+    end
   end
 
   private
