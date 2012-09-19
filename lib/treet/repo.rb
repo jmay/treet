@@ -92,13 +92,18 @@ class Treet::Repo
         when '-'
           # remove something
           if fieldname
+            # this is a key in a subhash
             data = JSON.load(File.open(filepath))
             data.delete(fieldname)
             if data.empty?
+              # all keys have been removed, clean up the file
               File.delete(filename)
             else
               File.open(filepath, "w") {|f| f << JSON.pretty_generate(data)}
             end
+          elsif dirname == "."
+            # this is a top-level string
+            File.delete(filename) if File.exists?(filename) # need the existence check for idempotence
           else
             # this is an array, we look for a match on the entire contents via digest
             subfile = "#{dirname}/#{Treet::Hash.digestify(v1)}"

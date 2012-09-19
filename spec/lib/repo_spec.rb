@@ -115,4 +115,36 @@ describe "Repo" do
       newhash['datalist'].count.should == 2
     end
   end
+
+  it "should clean up after a subhash deletion patch" do
+    hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
+    Dir.mktmpdir do |dir|
+      repo = hash.to_repo(dir)
+      repo.patch([
+        [
+          "-",
+          "name.full",
+          "oldval"
+        ]
+      ])
+      newhash = repo.to_hash
+      newhash.keys.should be_empty
+    end
+  end
+
+  it "should clean up after a top-level string deletion patch" do
+    hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/four.json")
+    Dir.mktmpdir do |dir|
+      repo = hash.to_repo(dir)
+      repo.patch([
+        [
+          "-",
+          "title",
+          "oldval"
+        ]
+      ])
+      newhash = repo.to_hash
+      newhash.keys.should == ['datalist']
+    end
+  end
 end
