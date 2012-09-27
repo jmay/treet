@@ -57,6 +57,7 @@ class Treet::Repo
 
         dirname, filename, fieldname = Treet::Repo.filefor(key)
         filepath = "#{dirname}/#{filename}"
+
         case flag
         when '~'
           # change a value in place
@@ -86,7 +87,13 @@ class Treet::Repo
             # idempotent: this will overwrite the file with the same contents
             subfile = "#{dirname}/#{Treet::Hash.digestify(v1)}"
             Dir.mkdir(dirname) unless Dir.exists?(dirname)
-            File.open(subfile, "w") {|f| f << JSON.pretty_generate(v1)}
+            if fieldname
+              # hash entry
+              File.open(subfile, "w") {|f| f << JSON.pretty_generate(v1)}
+            else
+              # string entry - create empty file with this name
+              FileUtils.touch(subfile)
+            end
           end
 
         when '-'

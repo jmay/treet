@@ -147,4 +147,25 @@ describe "Repo" do
       newhash.keys.should == ['datalist']
     end
   end
+
+  it "should create empty files correctly when patch adds elements" do
+    hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/four.json")
+    Dir.mktmpdir do |dir|
+      repo = hash.to_repo(dir)
+      repo.patch([
+        [
+          "+",
+          "datalist[]",
+          "two"
+        ],
+        [
+          "+",
+          "datalist[]",
+          "seven"
+        ]
+      ])
+      newhash = repo.to_hash
+      newhash.to_hash['datalist'].should be_include('seven')
+    end
+  end
 end

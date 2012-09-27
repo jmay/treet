@@ -71,7 +71,7 @@ class Treet::Hash
             case v2
             when String
               # create empty file with this name
-              File.open("#{k}/#{v2}", "w")
+              FileUtils.touch("#{k}/#{v2}")
 
             else
               # store object contents as JSON into a generated filename
