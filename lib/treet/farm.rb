@@ -62,8 +62,10 @@ class Treet::Farm
   end
 
   # add a new repo, with data from an input hash
-  def add(hash)
-    uuid = UUIDTools::UUID.random_create.to_s
+  # if an :id is provided, then the new repo will be stored under that directory name,
+  # otherwise a unique id will be generated
+  def add(hash, opts = {})
+    uuid = opts[:id] || UUIDTools::UUID.random_create.to_s
     thash = Treet::Hash.new(hash)
     thash.to_repo("#{root}/#{uuid}")
   end

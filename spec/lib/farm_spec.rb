@@ -60,6 +60,11 @@ describe "Repository Farm" do
     repo.root.should =~ /#{farm.root}/
     Dir.glob("#{farm.root}/*").count.should == 4
 
+    # now try with a predefined ID
+    repo = farm.add(bob_hash, :id => '12345')
+    repo.root.should == "#{farm.root}/12345"
+    Dir.glob("#{farm.root}/*").count.should == 5
+
     FileUtils.rm_rf(farm.root)
   end
 end
