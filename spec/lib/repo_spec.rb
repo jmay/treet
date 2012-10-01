@@ -9,6 +9,17 @@ describe "Repo" do
     }
   end
 
+  it "should reload on reset" do
+    repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one")
+    repo.to_hash.should == {
+      'name' => {'full' => 'John Bigbooté'}
+    }
+    repo.reset
+    repo.to_hash.should == {
+      'name' => {'full' => 'John Bigbooté'}
+    }
+  end
+
   it "should generate optional " do
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one")
     repo.to_hash.should == {

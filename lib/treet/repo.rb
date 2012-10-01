@@ -17,6 +17,10 @@ class Treet::Repo
     @hash ||= expand(root)
   end
 
+  def reset
+    @hash = nil
+  end
+
   def compare(target)
     Treet::Hash.diff(to_hash, target.to_hash)
     # HashDiff.diff(to_hash, hash)
