@@ -1,7 +1,5 @@
 # encoding: UTF-8
 
-# require 'hashdiff'
-
 class Treet::Repo
   attr_reader :root, :hash, :opts
 
@@ -91,7 +89,8 @@ class Treet::Repo
             # idempotent: this will overwrite the file with the same contents
             subfile = "#{dirname}/#{Treet::Hash.digestify(v1)}"
             Dir.mkdir(dirname) unless Dir.exists?(dirname)
-            if fieldname
+            case v1
+            when Hash
               # hash entry
               File.open(subfile, "w") {|f| f << JSON.pretty_generate(v1)}
             else

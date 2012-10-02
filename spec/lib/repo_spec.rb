@@ -127,6 +127,23 @@ describe "Repo" do
     end
   end
 
+  it "should add hash entries inside existing arrays" do
+    hash = Treet::Hash.new(load_json('two'))
+    Dir.mktmpdir do |dir|
+      repo = hash.to_repo(dir)
+      repo.patch([
+        [
+          "+",
+          "emails[]",
+          {"label" => "home", "label" => "myname@gmail.com"}
+        ]
+      ])
+      newhash = repo.to_hash
+      newhash['emails'].count.should == 3
+      newhash['emails'].each {|x| x.is_a?(Hash).should be_true}
+    end
+  end
+
   it "should clean up after a subhash deletion patch" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
     Dir.mktmpdir do |dir|
