@@ -49,6 +49,8 @@ class Treet::Gitrepo < Treet::Repo
   def to_hash(opts = {})
     if opts[:commit]
       snapshot(opts[:commit])
+    elsif opts[:tag]
+      tag_snapshot(opts[:tag])
     else
       super()
     end
@@ -120,5 +122,11 @@ class Treet::Gitrepo < Treet::Repo
       end
     end
     data
+  end
+
+  def tag_snapshot(tagname)
+    tag_ref = Rugged::Reference.lookup(gitrepo, "refs/tags/#{tagname}")
+    raise ArgumentError, "tag '#{tagname}' does not exist in this repo" unless tag_ref
+    snapshot(tag_ref.target)
   end
 end

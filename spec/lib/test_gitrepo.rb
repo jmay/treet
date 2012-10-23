@@ -16,6 +16,10 @@ describe Treet::Gitrepo do
     Treet::Gitrepo.new(trepo.root, opts)
   end
 
+  def hashalike(h1, h2)
+    Treet::Hash.diff(h1, h2)
+  end
+
   describe "creation" do
     it "must have an author" do
       ->{ make_gitrepo('one') }.must_raise ArgumentError, "xxx"
@@ -24,7 +28,7 @@ describe Treet::Gitrepo do
     # TODO: must have an existing & non-empty directory tree
   end
 
-  describe "a minimal non-empty gitrepo" do
+  describe "a minimal non-empty untagged gitrepo" do
     subject { make_gitrepo('one', :author => {:name => 'Bob', :email => 'bob@example.com'}) }
 
     it "should have exactly one commit" do
@@ -41,6 +45,10 @@ describe Treet::Gitrepo do
 
     it "should have no tags" do
       subject.tags.must_be_empty
+    end
+
+    it "should fail on unknown tag lookups" do
+      ->{subject.to_hash(:tag => 'nosuchtag')}.must_raise ArgumentError
     end
   end
 
@@ -113,10 +121,33 @@ describe Treet::Gitrepo do
       latest_commit = r.head.target
       r.lookup(latest_commit).parents.count.must_equal 1
       previous_commit = r.lookup(latest_commit).parents.first
-      h1 = subject.to_hash(:commit => previous_commit.oid)
-      h2 = load_json('two')
-      h1['name'].must_equal h2['name']
-      h1['emails'].to_set.must_equal h2['emails'].to_set
+      assert hashalike(subject.to_hash(:commit => previous_commit.oid), load_json('two'))
+    end
+  end
+
+  describe "a tagged repo" do
+    subject do
+      r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
+      r.tag!('source1')
+      r.patch([
+        [
+          "-",
+          "emails[]",
+          { "label" => "home", "email" => "johns@lectroid.com" }
+        ]
+      ])
+      r
+    end
+
+    it "should have tag not pointing to HEAD" do
+      subject.tags.count.must_equal 1
+      subject.tags.first.name.must_equal "refs/tags/source1"
+      subject.tags.first.target.wont_equal subject.head.target
+    end
+
+    it "should have the original image for the tag" do
+      subject.to_hash.wont_equal subject.to_hash(:tag => 'source1')
+      assert hashalike(subject.to_hash(:tag => 'source1'), load_json('two'))
     end
   end
 
@@ -129,10 +160,11 @@ describe Treet::Gitrepo do
 
     it "should have tags" do
       subject.tags.count.must_equal 1
+      subject.tags.first.name.must_equal "refs/tags/source1"
     end
 
     it "should retrieve same image for default and by tag" do
-      subject.to_hash.must_equal subject.to_hash(:tag => 'source1')
+      assert hashalike(subject.to_hash(:tag => 'source1'), load_json('two'))
     end
 
     it "should point the tag at the commit" do
@@ -141,12 +173,19 @@ describe Treet::Gitrepo do
   end
 
   describe "a multiply-patched gitrepo" do
+    # subject do
+    #   r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
+    #   r.
+    #   r.patch([
+    #     [
+    #       "-",
+    #       "emails[]",
+    #       { "label" => "home", "email" => "johns@lectroid.com" }
+    #     ]
+    #   ])
+    #   r
+    # end
     # should remember all the tags
     # should fetch different images by tag
-  end
-
-  describe "patched with a delete" do
-    # should have an extra commit
-    # should reflect the deletion in current state
   end
 end
