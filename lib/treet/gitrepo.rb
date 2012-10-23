@@ -25,6 +25,22 @@ class Treet::Gitrepo < Treet::Repo
     gitrepo.refs(/tags/)
   end
 
+  def tag!(tagname)
+    refname = "refs/tags/#{tagname}"
+    begin
+      if tag_ref = Rugged::Reference.lookup(gitrepo, refname)
+        # move an existing tag
+        tag_ref.target = head.target
+      else
+        # new tag
+        Rugged::Reference.create(gitrepo, refname, head.target)
+      end
+    rescue Rugged::ReferenceError
+      # invalid string for source, e.g. blank or illegal punctuation (colons)
+      raise ArgumentError "invalid source string '#{tagname}' for repository tagging"
+    end
+  end
+
   def patch(patchdef)
     super
     add_and_commit!

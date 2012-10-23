@@ -121,8 +121,23 @@ describe Treet::Gitrepo do
   end
 
   describe "a tagged patch" do
-    # should point the tag at the commit
-    # should retrieve same image for default and by tag
+    subject do
+      r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
+      r.tag!('source1')
+      r
+    end
+
+    it "should have tags" do
+      subject.tags.count.must_equal 1
+    end
+
+    it "should retrieve same image for default and by tag" do
+      subject.to_hash.must_equal subject.to_hash(:tag => 'source1')
+    end
+
+    it "should point the tag at the commit" do
+      subject.tags.first.target.must_equal subject.head.target
+    end
   end
 
   describe "a multiply-patched gitrepo" do
