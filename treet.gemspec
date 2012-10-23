@@ -17,9 +17,11 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'uuidtools'
   gem.add_dependency 'thor'
+  gem.add_dependency 'rugged', "~> 0.17.0.b6"
 
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec"
   gem.add_development_dependency "guard-rspec"
+  gem.add_development_dependency "guard-minitest"
   gem.add_development_dependency "ruby_gntp"
 end

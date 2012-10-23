@@ -6,8 +6,6 @@ unless Kernel.respond_to?(:require_relative)
   end
 end
 
-require_relative "treet/version"
-
-require_relative "treet/repo"
-require_relative "treet/hash"
-require_relative "treet/farm"
+%w(version hash repo farm gitrepo).each do |f|
+  require_relative "treet/#{f}"
+end
