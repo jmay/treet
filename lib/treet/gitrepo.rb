@@ -25,7 +25,7 @@ class Treet::Gitrepo < Treet::Repo
     gitrepo.refs(/tags/)
   end
 
-  def tag!(tagname)
+  def tag(tagname)
     refname = "refs/tags/#{tagname}"
     begin
       if tag_ref = Rugged::Reference.lookup(gitrepo, refname)

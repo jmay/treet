@@ -82,10 +82,10 @@ describe Treet::Gitrepo do
       subject.tags.must_be_empty
     end
 
-    it "should be able to reverse-engineer the patch from the git history" do
-      skip
-      # rugged has a `Rugged::Commit#diff-tree` on the roadmap (see `USAGE.rb`), not yet implemented
-    end
+    # it "should be able to reverse-engineer the patch from the git history" do
+    #   skip
+    #   # rugged has a `Rugged::Commit#diff-tree` on the roadmap (see `USAGE.rb`), not yet implemented
+    # end
   end
 
   describe "patched with a delete" do
@@ -128,7 +128,7 @@ describe Treet::Gitrepo do
   describe "a tagged repo" do
     subject do
       r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
-      r.tag!('source1')
+      r.tag('source1')
       r.patch([
         [
           "-",
@@ -154,7 +154,7 @@ describe Treet::Gitrepo do
   describe "a tagged patch" do
     subject do
       r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
-      r.tag!('source1')
+      r.tag('source1')
       r
     end
 
@@ -173,19 +173,40 @@ describe Treet::Gitrepo do
   end
 
   describe "a multiply-patched gitrepo" do
-    # subject do
-    #   r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
-    #   r.
-    #   r.patch([
-    #     [
-    #       "-",
-    #       "emails[]",
-    #       { "label" => "home", "email" => "johns@lectroid.com" }
-    #     ]
-    #   ])
-    #   r
-    # end
-    # should remember all the tags
-    # should fetch different images by tag
+    subject do
+      r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
+      r.tag('app1')
+      r.tag('app2')
+      @image1 = r.to_hash
+      r.patch([
+        [
+          "-",
+          "emails[]",
+          { "label" => "home", "email" => "johns@lectroid.com" }
+        ]
+      ])
+      r.tag('app2')
+      @image2 = r.to_hash
+      r.patch([
+        [
+          "+",
+          "org.name",
+          "BigCorp"
+        ]
+      ])
+      r.tag('app3')
+      @image3 = r.to_hash
+      r
+    end
+
+    it "should remember all the tags" do
+      subject.tags.count.must_equal 3
+    end
+
+    it "should fetch different images by tag" do
+      assert hashalike(subject.to_hash(:tag => 'app1'), @image1)
+      assert hashalike(subject.to_hash(:tag => 'app2'), @image2)
+      assert hashalike(subject.to_hash(:tag => 'app3'), @image3)
+    end
   end
 end
