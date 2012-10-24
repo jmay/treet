@@ -55,6 +55,10 @@ describe Treet::Gitrepo do
     it "should fail on unknown tag lookups" do
       ->{subject.to_hash(:tag => 'nosuchtag')}.must_raise ArgumentError
     end
+
+    it "should have no branches" do
+      subject.branches.must_be_empty
+    end
   end
 
   describe "a gitrepo with an xref" do
@@ -201,6 +205,10 @@ describe Treet::Gitrepo do
       subject.to_hash(:tag => 'app1').keys.must_include 'xref'
       subject.to_hash(:tag => 'app1')['xref']['app1'].must_equal 'APP1_ID'
     end
+
+    it "should have no branches" do
+      subject.branches.must_be_empty
+    end
   end
 
   describe "a tagged repo" do
@@ -213,6 +221,10 @@ describe Treet::Gitrepo do
     it "should have tags" do
       subject.tags.count.must_equal 1
       subject.tags.first.name.must_equal "refs/tags/source1"
+    end
+
+    it "should have no branches" do
+      subject.branches.must_be_empty
     end
 
     it "should retrieve same image for default and by tag" do
@@ -277,6 +289,18 @@ describe Treet::Gitrepo do
       assert hashalike(subject[:repo].to_hash(:tag => 'app3'), subject[:image3])
       assert hashalike(subject[:repo].to_hash(:tag => 'app4'), subject[:image4])
       assert hashalike(subject[:repo].to_hash, subject[:image4])
+    end
+  end
+
+  describe "a branched gitrepo" do
+    subject do
+      r = make_gitrepo('one', :author => {:name => 'Bob', :email => 'bob@example.com'})
+      r.branch('mybranch')
+      r
+    end
+
+    it "should show a branch" do
+      subject.branches.must_equal ['refs/heads/mybranch']
     end
   end
 end

@@ -61,6 +61,16 @@ class Treet::Gitrepo < Treet::Repo
     index.entries.map{|e| e[:path]}
   end
 
+  def branches
+    refs(/heads/).map(&:name) - ['refs/heads/master']
+  end
+
+  # always branch from tip of master (private representation)
+  def branch(name)
+    Rugged::Reference.create(gitrepo, "refs/heads/#{name}", head.target)
+  end
+
+
   private
 
   attr_reader :gitrepo, :author
