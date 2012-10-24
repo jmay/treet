@@ -176,9 +176,18 @@ describe Treet::Gitrepo do
           "-",
           "emails[]",
           { "label" => "home", "email" => "johns@lectroid.com" }
+        ],
+        [
+          "+",
+          "name.first",
+          "Ralph"
         ]
       ])
       r
+    end
+
+    it "should correctly commit the existing updated git artifacts" do
+      subject.to_hash(:commit => subject.head.target)['name']['first'].must_equal 'Ralph'
     end
 
     it "should not have an index entry for the removed item" do

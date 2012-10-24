@@ -115,12 +115,12 @@ class Treet::Gitrepo < Treet::Repo
         end
       end
 
-      # (current_files & current_index).each do |file|
-      #   $stderr.puts "add-and-commit: unchanged file #{file}"
-      #   if File.file?(file)
-      #     index.add(file)
-      #   end
-      # end
+      # possible alterations - these changes won't be detected unless we explicitly git-add
+      (current_files & current_index).each do |file|
+        if File.file?(file)
+          index.add(file)
+        end
+      end
 
       # deletions
       (current_index - current_files).each do |file|
