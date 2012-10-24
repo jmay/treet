@@ -4,6 +4,7 @@ require "spec_helper"
 describe "Repository Farm" do
   it "should export as array of hashes with an xref value" do
     farm = Treet::Farm.new(:root => "#{File.dirname(__FILE__)}/../repos/farm1", :xref => 'test')
+    farm.repos.count.should == 2
     farm.export.should == [
       {
         'name' => {
@@ -54,6 +55,7 @@ describe "Repository Farm" do
 
   it "should take additions" do
     farm = Treet::Farm.plant(:json => "#{File.dirname(__FILE__)}/../json/master.json", :root => Dir.mktmpdir)
+    farm.repos.count.should == 3
 
     bob_hash = load_json("bob1")
     repo = farm.add(bob_hash)

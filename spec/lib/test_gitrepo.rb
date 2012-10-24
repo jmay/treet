@@ -22,7 +22,7 @@ describe Treet::Gitrepo do
 
   describe "creation" do
     it "must have an author" do
-      ->{ make_gitrepo('one') }.must_raise ArgumentError, "xxx"
+      ->{ make_gitrepo('one') }.must_raise(ArgumentError, "xxx")
     end
 
     # TODO: must have an existing & non-empty directory tree

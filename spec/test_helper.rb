@@ -7,8 +7,12 @@ require "fileutils"
 
 $topdir ||= Dir.mktmpdir("treet-tests-")
 
+def jsonfile(filename)
+  "#{File.dirname(__FILE__)}/json/#{filename}.json"
+end
+
 def load_json(filename)
-  JSON.load(File.open("#{File.dirname(__FILE__)}/json/#{filename}.json"))
+  JSON.load(File.open(jsonfile(filename)))
 end
 
 MiniTest::Unit.after_tests do

@@ -12,7 +12,6 @@ end
 guard 'minitest' do
   # with Minitest::Unit
   # watch(%r{^spec/lib/test_.*\.rb})
-  # watch(%r|^test/test_helper\.rb|)    { "test" }
 
   # watch(%r|^test/(.*)\/?test_(.*)\.rb|)
   # watch(%r|^lib/(.*)([^/]+)\.rb|)     { |m| "test/#{m[1]}test_#{m[2]}.rb" }
@@ -23,6 +22,7 @@ guard 'minitest' do
   # with Minitest::Spec
   watch(%r|^spec/lib/test_(.*)\.rb|)
   watch(%r{^lib/treet/(.+)\.rb$})     { |m| "spec/lib/test_#{m[1]}.rb" }
+  watch(%r|^spec/test_helper\.rb|)    { Dir.glob("spec/lib/test_*") }
   # watch(%r|^lib/(.*)([^/]+)\.rb|)     { |m| "spec/#{m[1]}#{m[2]}_spec.rb" }
   # watch(%r|^spec/spec_helper\.rb|)    { "spec" }
 end
