@@ -1,27 +1,24 @@
 # encoding: UTF-8
 
 class Treet::Repo
-  attr_reader :root, :hash, :opts
+  attr_reader :root
 
   def initialize(path, opts = {})
-    # TODO: validate that path exists and is a directory (symlinks should work)
+    raise "Missing or invalid source path #{path}" unless File.directory?(path)
 
     @root = path
-    raise "Missing or invalid source path #{path}" unless File.directory?(path)
-    @opts = opts
   end
 
   def to_hash
-    @hash ||= expand(root)
+    expand(root)
   end
 
   def reset
-    @hash = nil
+    # clear any cached data
   end
 
   def compare(target)
     Treet::Hash.diff(to_hash, target.to_hash)
-    # HashDiff.diff(to_hash, hash)
   end
 
   # patch keys can look like
@@ -149,19 +146,8 @@ class Treet::Repo
     end
   end
 
-  # def decorate(hash)
-  #   if opts[:xrefkey]
-  #     hash['xref'] ||= {}
-  #     hash['xref'][opts[:xrefkey]] = opts[:xref]
-  #   end
-  #   hash
-  # end
-
   def expand(path)
     files = Dir.entries(path).select {|f|  f !~ /^\./}
-    hash = files.each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
-
-    # decorate(hash)
-    hash
+    files.each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
   end
 end

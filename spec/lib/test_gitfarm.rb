@@ -3,7 +3,8 @@ require "test_helper"
 require "pp"
 
 describe Treet::Gitfarm do
-  def empty_gitfarm
+  def self.empty_gitfarm
+    puts "EMPTY FARM"
     Treet::Gitfarm.new(
       :root => Dir.mktmpdir('farm', $topdir),
       :xref => 'testapp',
@@ -12,6 +13,7 @@ describe Treet::Gitfarm do
   end
 
   def make_gitfarm
+    puts "MAKE FARM"
     Treet::Gitfarm.plant(
       :json => jsonfile('master'),
       :root => Dir.mktmpdir('farm', $topdir),
@@ -30,19 +32,28 @@ describe Treet::Gitfarm do
       end
     end
 
-    it "should all include xref when fetched" do
-      subject.repos.each do |id, repo|
-        repo.to_hash['xref'].keys.must_include 'myapp'
-      end
-    end
+    # it "should all include xref when fetched" do
+    #   subject.repos.each do |id, repo|
+    #     repo.to_hash['xref'].keys.must_include 'myapp'
+    #   end
+    # end
   end
 
   describe "new repo in empty farm" do
-    subject do
-      farm = empty_gitfarm
-      farm.add(load_json('bob1'), :tag => "app1")
-      farm
+    def self.dofarm
+      @farm ||= begin
+        farm = empty_gitfarm
+        farm.add(load_json('bob1'), :tag => "app1")
+        farm
+      end
     end
+
+    subject { self.class.dofarm }
+    # subject do
+    #   farm = empty_gitfarm
+    #   farm.add(load_json('bob1'), :tag => "app1")
+    #   farm
+    # end
 
     it "is the only repo" do
       subject.repos.count.must_equal 1
@@ -54,9 +65,9 @@ describe Treet::Gitfarm do
       bob.tags.first.name.must_equal 'refs/tags/app1'
     end
 
-    it "carries xref in data representation but not in git" do
-      id, bob = subject.repos.first
-      bob.to_hash['xref']['testapp'].must_equal id
-    end
+    # it "carries xref in data representation but not in git" do
+    #   id, bob = subject.repos.first
+    #   bob.to_hash['xref']['testapp'].must_equal id
+    # end
   end
 end

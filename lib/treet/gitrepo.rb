@@ -142,10 +142,18 @@ class Treet::Gitrepo < Treet::Repo
     tree.each do |obj|
       data[obj[:name]] = case obj[:type]
       when :blob
-        JSON.load(gitrepo.read(obj[:oid]).data)
+        begin
+          JSON.load(gitrepo.read(obj[:oid]).data)
+        rescue JSON::ParserError
+          raise JSON::ParserError, "bad JSON in blob #{obj[:name]}: #{gitrepo.read(obj[:oid]).data}"
+        end
       when :tree
-        gitrepo.lookup(obj[:oid]).each_with_object([]) do |subobj,d|
-          d << JSON.load(gitrepo.read(subobj[:oid]).data)
+        begin
+          gitrepo.lookup(obj[:oid]).each_with_object([]) do |subobj,d|
+            d << JSON.load(gitrepo.read(subobj[:oid]).data)
+          end
+        rescue JSON::ParserError
+          raise JSON::ParserError, "bad JSON in tree #{obj[:name]}: #{gitrepo.read(obj[:oid]).data}"
         end
       else
         raise TypeError, "UNRECOGNIZED GIT OBJECT TYPE #{obj[:type]}"
