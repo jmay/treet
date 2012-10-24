@@ -25,4 +25,13 @@ class Treet::Gitfarm < Treet::Farm
       end
     end
   end
+
+  def add(hash, opts = {})
+    repo = super
+    gitrepo = Treet::Gitrepo.new(repo.root, :author => author)
+    if opts[:tag]
+      gitrepo.tag(opts[:tag])
+    end
+    gitrepo
+  end
 end
