@@ -41,6 +41,7 @@ describe Treet::Gitrepo do
 
     it "should have a single entry" do
       subject.index.count.must_equal 1
+      subject.entries.must_equal ['name']
     end
 
     it "should fetch data content" do
@@ -67,6 +68,12 @@ describe Treet::Gitrepo do
         ]
       ])
       r
+    end
+
+    it "should have correct git index" do
+      subject.index.count.must_equal 2
+      subject.entries.must_include 'name'
+      subject.entries.must_include 'org'
     end
 
     it "should hashify correctly" do
@@ -105,6 +112,12 @@ describe Treet::Gitrepo do
       r
     end
 
+    it "should have correct git index" do
+      subject.index.count.must_equal 2
+      subject.entries.must_include 'name'
+      subject.entries.grep(/emails/).wont_be_empty
+    end
+
     it "should hashify correctly" do
       # should reflect the deletion in current state
       expectation = load_json('two')
@@ -129,7 +142,7 @@ describe Treet::Gitrepo do
     end
   end
 
-  describe "a tagged repo" do
+  describe "a tagged & patched repo" do
     subject do
       r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
       r.tag('source1')
@@ -156,12 +169,12 @@ describe Treet::Gitrepo do
     end
 
     it "should have the original image for the tag" do
-      subject.to_hash.wont_equal subject.to_hash(:tag => 'source1')
+      refute hashalike(subject.to_hash, subject.to_hash(:tag => 'source1'))
       assert hashalike(subject.to_hash(:tag => 'source1'), load_json('two'))
     end
   end
 
-  describe "a tagged patch" do
+  describe "a tagged repo" do
     subject do
       r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
       r.tag('source1')
