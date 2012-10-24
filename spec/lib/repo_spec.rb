@@ -55,7 +55,7 @@ describe "Repo" do
     Treet::Repo.filefor("topvalue").should == ['.', "topvalue"]
   end
 
-  it "should added xref keys when specified" do
+  it "should add xref keys when specified" do
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one", :xrefkey => 'foo', :xref => 'bar')
     repo.to_hash.should == {
       'name' => {'full' => 'John Bigbooté'},

@@ -141,7 +141,8 @@ class Treet::Gitrepo < Treet::Repo
         raise TypeError, "UNRECOGNIZED GIT OBJECT TYPE #{obj[:type]}"
       end
     end
-    data
+
+    decorate(data)
   end
 
   def tag_snapshot(tagname)

@@ -57,6 +57,23 @@ describe Treet::Gitrepo do
     end
   end
 
+  describe "a gitrepo with an xref" do
+    subject do
+      make_gitrepo('one',
+        :author => {:name => 'Bob', :email => 'bob@example.com'},
+        :xrefkey => 'foo',
+        :xref => 'bar')
+    end
+
+    it "should handle xrefs like a regular treet repo" do
+      expectation = {
+        'name' => {'full' => 'John Bigbooté'},
+        'xref' => {'foo' => 'bar'}
+      }
+      subject.to_hash.must_equal expectation
+    end
+  end
+
   describe "a patched gitrepo" do
     subject do
       r = make_gitrepo('one', :author => {:name => 'Bob', :email => 'bob@example.com'})
@@ -144,8 +161,12 @@ describe Treet::Gitrepo do
 
   describe "a tagged & patched repo" do
     subject do
-      r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
-      r.tag('source1')
+      r = make_gitrepo('two',
+        :author => {:name => 'Bob', :email => 'bob@example.com'},
+        :xrefkey => 'app1',
+        :xref => 'APP1_ID'
+      )
+      r.tag('app1')
       r.patch([
         [
           "-",
@@ -164,13 +185,21 @@ describe Treet::Gitrepo do
 
     it "should have tag not pointing to HEAD" do
       subject.tags.count.must_equal 1
-      subject.tags.first.name.must_equal "refs/tags/source1"
+      subject.tags.first.name.must_equal "refs/tags/app1"
       subject.tags.first.target.wont_equal subject.head.target
     end
 
     it "should have the original image for the tag" do
-      refute hashalike(subject.to_hash, subject.to_hash(:tag => 'source1'))
-      assert hashalike(subject.to_hash(:tag => 'source1'), load_json('two'))
+      refute hashalike(subject.to_hash, subject.to_hash(:tag => 'app1'))
+      assert hashalike(subject.to_hash(:tag => 'app1'), load_json('two').merge('xref' => {'app1' => 'APP1_ID'}))
+    end
+
+    it "should handle xrefs like a regular treet repo" do
+      subject.to_hash.keys.must_include 'xref'
+      subject.to_hash['xref']['app1'].must_equal 'APP1_ID'
+
+      subject.to_hash(:tag => 'app1').keys.must_include 'xref'
+      subject.to_hash(:tag => 'app1')['xref']['app1'].must_equal 'APP1_ID'
     end
   end
 
