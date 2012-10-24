@@ -87,42 +87,46 @@ describe Treet::Gitrepo do
         :xrefkey => 'foo',
         :xref => 'bar')
     end
-
-    # it "should handle xrefs like a regular treet repo" do
-    #   expectation = {
-    #     'name' => {'full' => 'John Bigbooté'},
-    #     'xref' => {'foo' => 'bar'}
-    #   }
-    #   subject.to_hash.must_equal expectation
-    # end
   end
 
   describe "a patched gitrepo" do
-    subject do
-      r = make_gitrepo('one', :author => {:name => 'Bob', :email => 'bob@example.com'})
-      r.patch([
-        [
-          "+",
-          "org.name",
-          "Bigcorp"
-        ]
-      ])
-      r
+    def self.patch_johnb
+      @memo ||= begin
+        puts "MAKE & PATCH FOR JOHNB"
+        data = {
+          "name" => {
+            "full" => "John Bigbooté"
+          }
+        }
+        thash = Treet::Hash.new(data)
+        trepo = thash.to_repo(Dir.mktmpdir('repo', $topdir))
+        r = Treet::Gitrepo.new(trepo.root, :author => {:name => 'Bob', :email => 'bob@example.com'})
+        r.patch([
+          [
+            "+",
+            "org.name",
+            "Bigcorp"
+          ]
+        ])
+        r
+      end
     end
 
+    let(:repo) { self.class.patch_johnb }
+
     it "should have correct git index" do
-      subject.index.count.must_equal 2
-      subject.entries.must_include 'name'
-      subject.entries.must_include 'org'
+      repo.index.count.must_equal 2
+      repo.entries.must_include 'name'
+      repo.entries.must_include 'org'
     end
 
     it "should hashify correctly" do
       expectation = load_json('one').merge({'org' => {'name' => 'Bigcorp'}})
-      subject.to_hash.must_equal expectation
+      repo.to_hash.must_equal expectation
     end
 
     it "should have 2 commits" do
-      r = Rugged::Repository.new(subject.root)
+      r = Rugged::Repository.new(repo.root)
       latest_commit = r.head.target
       r.lookup(latest_commit).parents.count.must_equal 1
       previous_commit = r.lookup(latest_commit).parents.first
@@ -130,7 +134,7 @@ describe Treet::Gitrepo do
     end
 
     it "should have no tags" do
-      subject.tags.must_be_empty
+      repo.tags.must_be_empty
     end
 
     # it "should be able to reverse-engineer the patch from the git history" do
@@ -225,14 +229,6 @@ describe Treet::Gitrepo do
       refute hashalike(subject.to_hash, subject.to_hash(:tag => 'app1'))
       assert hashalike(subject.to_hash(:tag => 'app1'), load_json('two'))
     end
-
-    # it "should handle xrefs like a regular treet repo" do
-    #   subject.to_hash.keys.must_include 'xref'
-    #   subject.to_hash['xref']['app1'].must_equal 'APP1_ID'
-
-    #   subject.to_hash(:tag => 'app1').keys.must_include 'xref'
-    #   subject.to_hash(:tag => 'app1')['xref']['app1'].must_equal 'APP1_ID'
-    # end
 
     it "should have no branches" do
       subject.branches.must_be_empty
