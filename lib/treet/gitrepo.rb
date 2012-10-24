@@ -152,7 +152,8 @@ class Treet::Gitrepo < Treet::Repo
       end
     end
 
-    decorate(data)
+    # decorate(data)
+    data
   end
 
   def tag_snapshot(tagname)

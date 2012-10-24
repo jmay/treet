@@ -9,15 +9,9 @@ describe "Repository Farm" do
       {
         'name' => {
           'full' => 'John Bigbooté'
-        },
-        'xref' => {
-          'test' => 'one'
         }
       },
       {
-        'xref' => {
-          'test' => 'two'
-        },
         'name' => {
           'full' => 'John Smallberries',
           'first' => 'John',
@@ -47,11 +41,11 @@ describe "Repository Farm" do
     FileUtils.rm_rf(farm.root)
   end
 
-  it "should be retrievable by repo label/xref" do
-    farm = Treet::Farm.new(:root => "#{File.dirname(__FILE__)}/../repos/farm1", :xref => 'test')
-    farm['two'].root.should == "#{File.dirname(__FILE__)}/../repos/farm1/two"
-    farm['two'].to_hash['xref'].should == {'test' => 'two'}
-  end
+  # it "should be retrievable by repo label/xref" do
+  #   farm = Treet::Farm.new(:root => "#{File.dirname(__FILE__)}/../repos/farm1", :xref => 'test')
+  #   farm['two'].root.should == "#{File.dirname(__FILE__)}/../repos/farm1/two"
+  #   farm['two'].to_hash['xref'].should == {'test' => 'two'}
+  # end
 
   it "should take additions" do
     farm = Treet::Farm.plant(:json => "#{File.dirname(__FILE__)}/../json/master.json", :root => Dir.mktmpdir)

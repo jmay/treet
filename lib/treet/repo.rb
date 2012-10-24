@@ -149,18 +149,19 @@ class Treet::Repo
     end
   end
 
-  def decorate(hash)
-    if opts[:xrefkey]
-      hash['xref'] ||= {}
-      hash['xref'][opts[:xrefkey]] = opts[:xref]
-    end
-    hash
-  end
+  # def decorate(hash)
+  #   if opts[:xrefkey]
+  #     hash['xref'] ||= {}
+  #     hash['xref'][opts[:xrefkey]] = opts[:xref]
+  #   end
+  #   hash
+  # end
 
   def expand(path)
     files = Dir.entries(path).select {|f|  f !~ /^\./}
     hash = files.each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
 
-    decorate(hash)
+    # decorate(hash)
+    hash
   end
 end

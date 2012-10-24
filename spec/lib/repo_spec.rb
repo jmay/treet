@@ -55,13 +55,13 @@ describe "Repo" do
     Treet::Repo.filefor("topvalue").should == ['.', "topvalue"]
   end
 
-  it "should add xref keys when specified" do
-    repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one", :xrefkey => 'foo', :xref => 'bar')
-    repo.to_hash.should == {
-      'name' => {'full' => 'John Bigbooté'},
-      'xref' => {'foo' => 'bar'}
-    }
-  end
+  # it "should add xref keys when specified" do
+  #   repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one", :xrefkey => 'foo', :xref => 'bar')
+  #   repo.to_hash.should == {
+  #     'name' => {'full' => 'John Bigbooté'},
+  #     'xref' => {'foo' => 'bar'}
+  #   }
+  # end
 
   it "should take patches that add values to missing elements" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")

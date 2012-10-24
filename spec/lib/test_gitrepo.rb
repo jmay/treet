@@ -69,13 +69,13 @@ describe Treet::Gitrepo do
         :xref => 'bar')
     end
 
-    it "should handle xrefs like a regular treet repo" do
-      expectation = {
-        'name' => {'full' => 'John Bigbooté'},
-        'xref' => {'foo' => 'bar'}
-      }
-      subject.to_hash.must_equal expectation
-    end
+    # it "should handle xrefs like a regular treet repo" do
+    #   expectation = {
+    #     'name' => {'full' => 'John Bigbooté'},
+    #     'xref' => {'foo' => 'bar'}
+    #   }
+    #   subject.to_hash.must_equal expectation
+    # end
   end
 
   describe "a patched gitrepo" do
@@ -204,16 +204,16 @@ describe Treet::Gitrepo do
 
     it "should have the original image for the tag" do
       refute hashalike(subject.to_hash, subject.to_hash(:tag => 'app1'))
-      assert hashalike(subject.to_hash(:tag => 'app1'), load_json('two').merge('xref' => {'app1' => 'APP1_ID'}))
+      assert hashalike(subject.to_hash(:tag => 'app1'), load_json('two'))
     end
 
-    it "should handle xrefs like a regular treet repo" do
-      subject.to_hash.keys.must_include 'xref'
-      subject.to_hash['xref']['app1'].must_equal 'APP1_ID'
+    # it "should handle xrefs like a regular treet repo" do
+    #   subject.to_hash.keys.must_include 'xref'
+    #   subject.to_hash['xref']['app1'].must_equal 'APP1_ID'
 
-      subject.to_hash(:tag => 'app1').keys.must_include 'xref'
-      subject.to_hash(:tag => 'app1')['xref']['app1'].must_equal 'APP1_ID'
-    end
+    #   subject.to_hash(:tag => 'app1').keys.must_include 'xref'
+    #   subject.to_hash(:tag => 'app1')['xref']['app1'].must_equal 'APP1_ID'
+    # end
 
     it "should have no branches" do
       subject.branches.must_be_empty
