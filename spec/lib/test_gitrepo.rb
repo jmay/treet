@@ -10,10 +10,15 @@ require "pp"
 # pulling past snapshots
 
 describe Treet::Gitrepo do
-  def make_gitrepo(filename, opts = {})
+  def self.make_gitrepo(filename, opts = {})
+    $stderr.puts "REPO FOR #{filename}"
     thash = Treet::Hash.new(load_json(filename))
     trepo = thash.to_repo(Dir.mktmpdir('repo', $topdir))
     Treet::Gitrepo.new(trepo.root, opts)
+  end
+
+  def make_gitrepo(filename, opts = {})
+    self.class.make_gitrepo(filename, opts)
   end
 
   def hashalike(h1, h2)
@@ -29,35 +34,49 @@ describe Treet::Gitrepo do
   end
 
   describe "a minimal non-empty untagged gitrepo" do
-    subject { make_gitrepo('one', :author => {:name => 'Bob', :email => 'bob@example.com'}) }
+    def self.make_johnb
+      @memo ||= begin
+        puts "MAKE FOR JOHNB"
+        data = {
+          "name" => {
+            "full" => "John Bigbooté"
+          }
+        }
+        thash = Treet::Hash.new(data)
+        trepo = thash.to_repo(Dir.mktmpdir('repo', $topdir))
+        Treet::Gitrepo.new(trepo.root, :author => {:name => 'Bob', :email => 'bob@example.com'})
+      end
+    end
+
+    let(:johnb) { self.class.make_johnb }
 
     it "should have exactly one commit" do
-      subject.head.wont_be_nil
-      subject.refs.count.must_equal 1
-      subject.refs.first.target.must_equal subject.head.target
-      r = Rugged::Repository.new(subject.root)
-      r.lookup(subject.head.target).parents.must_be_empty
+      johnb.head.wont_be_nil
+      johnb.refs.count.must_equal 1
+      johnb.refs.first.target.must_equal johnb.head.target
+      r = Rugged::Repository.new(johnb.root)
+      r.lookup(johnb.head.target).parents.must_be_empty
     end
 
     it "should have a single entry" do
-      subject.index.count.must_equal 1
-      subject.entries.must_equal ['name']
+      johnb.index.count.must_equal 1
+      johnb.entries.must_equal ['name']
     end
 
     it "should fetch data content" do
-      subject.to_hash.must_equal load_json('one')
+      johnb.to_hash.must_equal load_json('one')
     end
 
     it "should have no tags" do
-      subject.tags.must_be_empty
+      johnb.tags.must_be_empty
     end
 
     it "should fail on unknown tag lookups" do
-      ->{subject.to_hash(:tag => 'nosuchtag')}.must_raise ArgumentError
+      ->{johnb.to_hash(:tag => 'nosuchtag')}.must_raise ArgumentError
     end
 
     it "should have no branches" do
-      subject.branches.must_be_empty
+      johnb.branches.must_be_empty
     end
   end
 
