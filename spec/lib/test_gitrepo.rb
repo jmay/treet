@@ -17,7 +17,7 @@ describe Treet::Gitrepo do
   end
 
   def hashalike(h1, h2)
-    Treet::Hash.diff(h1, h2)
+    Treet::Hash.diff(h1, h2).empty?
   end
 
   describe "creation" do
@@ -37,6 +37,10 @@ describe Treet::Gitrepo do
       subject.refs.first.target.must_equal subject.head.target
       r = Rugged::Repository.new(subject.root)
       r.lookup(subject.head.target).parents.must_be_empty
+    end
+
+    it "should have a single entry" do
+      subject.index.count.must_equal 1
     end
 
     it "should fetch data content" do
@@ -139,6 +143,12 @@ describe Treet::Gitrepo do
       r
     end
 
+    it "should not have an index entry for the removed item" do
+      subject.entries.must_include 'name'
+      subject.entries.grep(/^emails/).wont_be_empty
+      subject.index.count.must_equal 2
+    end
+
     it "should have tag not pointing to HEAD" do
       subject.tags.count.must_equal 1
       subject.tags.first.name.must_equal "refs/tags/source1"
@@ -177,16 +187,7 @@ describe Treet::Gitrepo do
       r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
       r.tag('app1')
       r.tag('app2')
-      @image1 = r.to_hash
-      r.patch([
-        [
-          "-",
-          "emails[]",
-          { "label" => "home", "email" => "johns@lectroid.com" }
-        ]
-      ])
-      r.tag('app2')
-      @image2 = r.to_hash
+      image1 = r.to_hash
       r.patch([
         [
           "+",
@@ -194,19 +195,46 @@ describe Treet::Gitrepo do
           "BigCorp"
         ]
       ])
+      r.tag('app2')
+      image2 = r.to_hash
+      r.patch([
+        [
+          "-",
+          "org.name",
+          "BigCorp"
+        ]
+      ])
       r.tag('app3')
-      @image3 = r.to_hash
-      r
+      image3 = r.to_hash
+      r.patch([
+        [
+          "-",
+          "emails[]",
+          { "label" => "home", "email" => "johns@lectroid.com" }
+        ]
+      ])
+      r.tag('app4')
+      image4 = r.to_hash
+
+      {
+        :repo => r,
+        :image1 => image1,
+        :image2 => image2,
+        :image3 => image3,
+        :image4 => image4
+      }
     end
 
     it "should remember all the tags" do
-      subject.tags.count.must_equal 3
+      subject[:repo].tags.count.must_equal 4
     end
 
     it "should fetch different images by tag" do
-      assert hashalike(subject.to_hash(:tag => 'app1'), @image1)
-      assert hashalike(subject.to_hash(:tag => 'app2'), @image2)
-      assert hashalike(subject.to_hash(:tag => 'app3'), @image3)
+      assert hashalike(subject[:repo].to_hash(:tag => 'app1'), subject[:image1])
+      assert hashalike(subject[:repo].to_hash(:tag => 'app2'), subject[:image2])
+      assert hashalike(subject[:repo].to_hash(:tag => 'app3'), subject[:image3])
+      assert hashalike(subject[:repo].to_hash(:tag => 'app4'), subject[:image4])
+      assert hashalike(subject[:repo].to_hash, subject[:image4])
     end
   end
 end

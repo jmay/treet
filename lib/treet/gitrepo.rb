@@ -5,7 +5,7 @@ require "forwardable"
 
 class Treet::Gitrepo < Treet::Repo
   extend Forwardable
-  def_delegators :@gitrepo, :head, :refs
+  def_delegators :@gitrepo, :head, :refs, :index
 
   def initialize(path, opts = {})
     raise ArgumentError, "author required for updates" unless opts[:author]
@@ -52,10 +52,14 @@ class Treet::Gitrepo < Treet::Repo
     elsif opts[:tag]
       tag_snapshot(opts[:tag])
     else
+      # snapshot(head.target)
       super()
     end
   end
 
+  def entries
+    index.entries.map{|e| e[:path]}
+  end
 
   private
 
@@ -89,13 +93,29 @@ class Treet::Gitrepo < Treet::Repo
   end
 
   def add_and_commit!
-    index = gitrepo.index
+    current_index = entries
     Dir.chdir(root) do
-      # must add each file explicitly, `index#add` does not recurse into directories
-      Dir.glob('**/*').each do |file|
+      current_files = Dir.glob('**/*')
+
+      # additions
+      (current_files - current_index).each do |file|
+        # must add each filename explicitly, `index#add` does not recurse into directories
         if File.file?(file)
           index.add(file)
         end
+      end
+
+      # (current_files & current_index).each do |file|
+      #   $stderr.puts "add-and-commit: unchanged file #{file}"
+      #   if File.file?(file)
+      #     index.add(file)
+      #   end
+      # end
+
+      # deletions
+      (current_index - current_files).each do |file|
+        # `index#remove` handles directories
+        index.remove(file)
       end
     end
 
