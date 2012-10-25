@@ -4,34 +4,25 @@ class Treet::Gitfarm < Treet::Farm
   attr_reader :author
 
   def initialize(opts)
+    raise ArgumentError, "No git farm without an author for commits" unless opts[:author]
     super
+    @repotype = Treet::Gitrepo
     @author = opts[:author]
   end
 
   def self.plant(opts)
-    farm = super
-    farm.repos.each do |id, repo|
-      Treet::Gitrepo.new(repo.root, opts)
-    end
-    Treet::Gitfarm.new(:root => farm.root, :xref => farm.xrefkey, :author => opts[:author])
+    super(opts.merge(:repotype => Treet::Gitrepo))
   end
 
   def repos
-    @repos_cache ||= Dir.glob("#{root}/*").each_with_object({}) do |subdir,h|
-      # in a Farm we are looking for repositories under the root
-      if File.directory?(subdir)
-        xref = File.basename(subdir)
-        h[xref] = Treet::Gitrepo.new(subdir, :xrefkey => xrefkey, :xref => xref, :author => author)
-      end
-    end
+    super(:author => author)
   end
 
   def add(hash, opts = {})
-    repo = super
-    gitrepo = Treet::Gitrepo.new(repo.root, :author => author)
+    repo = super(hash, opts.merge(:author => author))
     if opts[:tag]
-      gitrepo.tag(opts[:tag])
+      repo.tag(opts[:tag])
     end
-    gitrepo
+    repo
   end
 end

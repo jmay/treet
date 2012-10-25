@@ -11,7 +11,6 @@ require "pp"
 
 describe Treet::Gitrepo do
   def self.make_gitrepo(filename, opts = {})
-    $stderr.puts "REPO FOR #{filename}"
     thash = Treet::Hash.new(load_json(filename))
     trepo = thash.to_repo(Dir.mktmpdir('repo', $topdir))
     Treet::Gitrepo.new(trepo.root, opts)

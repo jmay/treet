@@ -22,9 +22,10 @@ class Treet::Hash
     @data = normalize(d)
   end
 
-  def to_repo(root)
+  def to_repo(root, opts = {})
     construct(data, root)
-    Treet::Repo.new(root)
+    repotype = opts[:repotype] || Treet::Repo
+    repotype.new(root, opts)
   end
 
   def to_hash

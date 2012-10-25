@@ -3,21 +3,22 @@
 require "uuidtools"
 
 class Treet::Farm
-  attr_reader :root, :xrefkey
+  attr_reader :root, :xrefkey, :repotype
 
   def initialize(opts)
     raise Errno::ENOENT unless File.directory?(opts[:root])
 
     @root = opts[:root]
     @xrefkey = opts[:xref]
+    @repotype = opts[:repotype] || Treet::Repo
   end
 
-  def repos
+  def repos(opts = {})
     @repos_cache ||= Dir.glob("#{root}/*").each_with_object({}) do |subdir,h|
       # in a Farm we are looking for repositories under the root
       if File.directory?(subdir)
         xref = File.basename(subdir)
-        h[xref] = Treet::Repo.new(subdir, :xrefkey => xrefkey, :xref => xref)
+        h[xref] = repotype.new(subdir, opts.merge(:xrefkey => xrefkey, :xref => xref))
       end
     end
   end
@@ -43,11 +44,11 @@ class Treet::Farm
       array_of_hashes.each do |h|
         uuid = UUIDTools::UUID.random_create.to_s
         thash = Treet::Hash.new(h)
-        thash.to_repo(uuid)
+        thash.to_repo(uuid, opts)
       end
     end
 
-    Treet::Farm.new(:root => rootdir, :xref => opts[:xref])
+    self.new(opts)
   end
 
   # apply patches to a farm of repos
@@ -67,6 +68,6 @@ class Treet::Farm
   def add(hash, opts = {})
     uuid = opts[:id] || UUIDTools::UUID.random_create.to_s
     thash = Treet::Hash.new(hash)
-    thash.to_repo("#{root}/#{uuid}")
+    repos[uuid] = thash.to_repo("#{root}/#{uuid}", opts.merge(:repotype => repotype))
   end
 end
