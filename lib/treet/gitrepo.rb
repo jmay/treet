@@ -70,6 +70,14 @@ class Treet::Gitrepo < Treet::Repo
     Rugged::Reference.create(gitrepo, "refs/heads/#{name}", head.target)
   end
 
+  def version(opts = {})
+    if tag = opts[:tag]
+      ref = Rugged::Reference.lookup(gitrepo, "refs/tags/#{tag}")
+      ref && ref.target
+    else
+      head.target
+    end
+  end
 
   private
 

@@ -76,16 +76,16 @@ describe Treet::Gitrepo do
     it "should have no branches" do
       johnb.branches.must_be_empty
     end
+
+    it "should return commit SHA for version label" do
+      johnb.version.must_equal johnb.head.target
+    end
+
+    it "should return nil for unknown tag versions" do
+      johnb.version(:tag => 'nosuchtag').must_be_nil
+    end
   end
 
-  # describe "a gitrepo with an xref" do
-  #   subject do
-  #     make_gitrepo('one',
-  #       :author => {:name => 'Bob', :email => 'bob@example.com'},
-  #       :xrefkey => 'foo',
-  #       :xref => 'bar')
-  #   end
-  # end
 
   describe "a patched gitrepo" do
     def self.patch_johnb
@@ -184,27 +184,31 @@ describe Treet::Gitrepo do
   end
 
   describe "a tagged & patched repo" do
-    let(:repo) do
-      r = make_gitrepo('two',
-        :author => {:name => 'Bob', :email => 'bob@example.com'},
-        :xrefkey => 'app1',
-        :xref => 'APP1_ID'
-      )
-      r.tag('app1')
-      r.patch([
-        [
-          "-",
-          "emails[]",
-          { "label" => "home", "email" => "johns@lectroid.com" }
-        ],
-        [
-          "+",
-          "name.first",
-          "Ralph"
-        ]
-      ])
-      r
+    def self.makerepo
+      @cache ||= begin
+        r = make_gitrepo('two',
+          :author => {:name => 'Bob', :email => 'bob@example.com'},
+          :xrefkey => 'app1',
+          :xref => 'APP1_ID'
+        )
+        r.tag('app1')
+        r.patch([
+          [
+            "-",
+            "emails[]",
+            { "label" => "home", "email" => "johns@lectroid.com" }
+          ],
+          [
+            "+",
+            "name.first",
+            "Ralph"
+          ]
+        ])
+        r
+      end
     end
+
+    let(:repo) { self.class.makerepo }
 
     it "should correctly commit the existing updated git artifacts" do
       repo.to_hash(:commit => repo.head.target)['name']['first'].must_equal 'Ralph'
@@ -230,6 +234,11 @@ describe Treet::Gitrepo do
     it "should have no branches" do
       repo.branches.must_be_empty
     end
+
+    it "should track version label by tag" do
+      repo.version.must_equal repo.head.target
+      repo.version(:tag => 'app1').must_equal repo.tags.first.target
+    end
   end
 
   describe "a tagged repo" do
@@ -254,51 +263,56 @@ describe Treet::Gitrepo do
 
     it "should point the tag at the commit" do
       repo.tags.first.target.must_equal repo.head.target
+      repo.version.must_equal repo.version(:tag => 'source1')
     end
   end
 
   describe "a multiply-patched gitrepo" do
-    let(:repo) do
-      r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
-      r.tag('app1')
-      r.tag('app2')
-      image1 = r.to_hash
-      r.patch([
-        [
-          "+",
-          "org.name",
-          "BigCorp"
-        ]
-      ])
-      r.tag('app2')
-      image2 = r.to_hash
-      r.patch([
-        [
-          "-",
-          "org.name",
-          "BigCorp"
-        ]
-      ])
-      r.tag('app3')
-      image3 = r.to_hash
-      r.patch([
-        [
-          "-",
-          "emails[]",
-          { "label" => "home", "email" => "johns@lectroid.com" }
-        ]
-      ])
-      r.tag('app4')
-      image4 = r.to_hash
+    def self.makerepo
+      @cache ||= begin
+        r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
+        r.tag('app1')
+        r.tag('app2')
+        image1 = r.to_hash
+        r.patch([
+          [
+            "+",
+            "org.name",
+            "BigCorp"
+          ]
+        ])
+        r.tag('app2')
+        image2 = r.to_hash
+        r.patch([
+          [
+            "-",
+            "org.name",
+            "BigCorp"
+          ]
+        ])
+        r.tag('app3')
+        image3 = r.to_hash
+        r.patch([
+          [
+            "-",
+            "emails[]",
+            { "label" => "home", "email" => "johns@lectroid.com" }
+          ]
+        ])
+        r.tag('app4')
+        image4 = r.to_hash
 
-      {
-        :repo => r,
-        :image1 => image1,
-        :image2 => image2,
-        :image3 => image3,
-        :image4 => image4
-      }
+        {
+          :repo => r,
+          :image1 => image1,
+          :image2 => image2,
+          :image3 => image3,
+          :image4 => image4
+        }
+      end
     end
+
+    let(:repo) { self.class.makerepo }
 
     it "should remember all the tags" do
       repo[:repo].tags.count.must_equal 4
@@ -310,6 +324,11 @@ describe Treet::Gitrepo do
       assert hashalike(repo[:repo].to_hash(:tag => 'app3'), repo[:image3])
       assert hashalike(repo[:repo].to_hash(:tag => 'app4'), repo[:image4])
       assert hashalike(repo[:repo].to_hash, repo[:image4])
+    end
+
+    it "should have different version labels for each tag" do
+      versions = ['app1', 'app2', 'app3', 'app4'].map {|s| repo[:repo].version(:tag => s)}
+      versions.uniq.count.must_equal 4
     end
   end
 
