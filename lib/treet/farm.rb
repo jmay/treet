@@ -66,7 +66,7 @@ class Treet::Farm
   # if an :id is provided, then the new repo will be stored under that directory name,
   # otherwise a unique id will be generated
   def add(hash, opts = {})
-    uuid = opts[:id] || UUIDTools::UUID.random_create.to_s
+    uuid = opts[:id] || SecureRandom.uuid
     thash = Treet::Hash.new(hash)
     repos[uuid] = thash.to_repo("#{root}/#{uuid}", opts.merge(:repotype => repotype))
   end
