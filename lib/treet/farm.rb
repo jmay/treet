@@ -1,6 +1,6 @@
 # encoding: UTF-8
 
-require "uuidtools"
+require "securerandom"
 
 class Treet::Farm
   attr_reader :root, :xrefkey, :repotype
@@ -42,7 +42,7 @@ class Treet::Farm
     array_of_hashes = JSON.load(File.open(jsonfile))
     Dir.chdir(rootdir) do
       array_of_hashes.each do |h|
-        uuid = UUIDTools::UUID.random_create.to_s
+        uuid = SecureRandom.uuid
         thash = Treet::Hash.new(h)
         thash.to_repo(uuid, opts)
       end
