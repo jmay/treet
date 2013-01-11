@@ -58,10 +58,6 @@ class Treet::Farm
     end
   end
 
-  def [](xref)
-    repos[xref]
-  end
-
   # add a new repo, with data from an input hash
   # if an :id is provided, then the new repo will be stored under that directory name,
   # otherwise a unique id will be generated
@@ -75,5 +71,9 @@ class Treet::Farm
     Dir.chdir(root) do
       Dir.glob("*").select {|f| File.directory?(f)}
     end
+  end
+
+  def count
+    xrefs.count
   end
 end

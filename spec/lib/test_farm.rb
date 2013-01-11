@@ -32,7 +32,7 @@ describe "Repository Farm" do
   end
 
   it "planting should create a directory of UUID-labeled repos" do
-    farm = Treet::Farm.plant(:json => "#{File.dirname(__FILE__)}/../json/master.json", :root => Dir.mktmpdir)
+    farm = Treet::Farm.plant(:json => jsonfile('master'), :root => Dir.mktmpdir)
 
     Dir.glob("#{farm.root}/*").count.must_equal 3
     Dir.glob("#{farm.root}/*/emails/*").count.must_equal 5
@@ -48,15 +48,16 @@ describe "Repository Farm" do
   # end
 
   it "should allow direct fetch by id" do
-    farm = Treet::Farm.plant(:json => "#{File.dirname(__FILE__)}/../json/master.json", :root => Dir.mktmpdir)
+    farm = Treet::Farm.plant(:json => jsonfile('master'), :root => Dir.mktmpdir)
     repoid = farm.xrefs.sample
     farm.repo(repoid).wont_be_nil
     farm.repo("BOGUS").must_be_nil
   end
 
   it "should take additions" do
-    farm = Treet::Farm.plant(:json => "#{File.dirname(__FILE__)}/../json/master.json", :root => Dir.mktmpdir)
+    farm = Treet::Farm.plant(:json => jsonfile('master'), :root => Dir.mktmpdir)
     farm.repos.count.must_equal 3
+    farm.count.must_equal 3
 
     bob_hash = load_json("bob1")
     repo = farm.add(bob_hash)
