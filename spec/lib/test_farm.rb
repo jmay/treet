@@ -47,6 +47,13 @@ describe "Repository Farm" do
   #   farm['two'].to_hash['xref'].must_equal {'test' => 'two'}
   # end
 
+  it "should allow direct fetch by id" do
+    farm = Treet::Farm.plant(:json => "#{File.dirname(__FILE__)}/../json/master.json", :root => Dir.mktmpdir)
+    repoid = farm.xrefs.sample
+    farm.repo(repoid).wont_be_nil
+    farm.repo("BOGUS").must_be_nil
+  end
+
   it "should take additions" do
     farm = Treet::Farm.plant(:json => "#{File.dirname(__FILE__)}/../json/master.json", :root => Dir.mktmpdir)
     farm.repos.count.must_equal 3

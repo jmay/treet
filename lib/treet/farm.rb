@@ -14,13 +14,17 @@ class Treet::Farm
   end
 
   def repos(opts = {})
-    Dir.glob("#{root}/*").each_with_object({}) do |subdir,h|
+    xrefs.each_with_object({}) do |subdir,h|
       # in a Farm we are looking for repositories under the root
-      if File.directory?(subdir)
-        xref = File.basename(subdir)
-        h[xref] = repotype.new(subdir, opts.merge(:xrefkey => xrefkey, :xref => xref))
-      end
+      h[subdir] = repo(subdir, opts)
     end
+  end
+
+  def repo(id, opts = {})
+    repotype.new("#{root}/#{id}", opts)
+  rescue Errno::ENOENT
+    # no such repository exists
+    nil
   end
 
   # export as an array, not as a hash
@@ -65,5 +69,11 @@ class Treet::Farm
     uuid = opts[:id] || SecureRandom.uuid
     thash = Treet::Hash.new(hash)
     repos[uuid] = thash.to_repo("#{root}/#{uuid}", opts.merge(:repotype => repotype))
+  end
+
+  def xrefs
+    Dir.chdir(root) do
+      Dir.glob("*").select {|f| File.directory?(f)}
+    end
   end
 end

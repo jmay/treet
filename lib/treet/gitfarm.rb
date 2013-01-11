@@ -18,6 +18,10 @@ class Treet::Gitfarm < Treet::Farm
     super(:author => author)
   end
 
+  def repo(id, opts = {})
+    super(id, opts.merge(:author => author))
+  end
+
   def add(hash, opts = {})
     repo = super(hash, opts.merge(:author => author))
     if opts[:tag]

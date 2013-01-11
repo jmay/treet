@@ -4,7 +4,7 @@ class Treet::Repo
   attr_reader :root
 
   def initialize(path, opts = {})
-    raise "Missing or invalid source path #{path}" unless File.directory?(path)
+    raise Errno::ENOENT, "Missing or invalid source path #{path}" unless File.directory?(path)
 
     @root = path
   end
@@ -41,7 +41,7 @@ class Treet::Repo
 
     Dir.chdir(root) do
       diffs.each do |diff|
-        flag, key, v1, v2 = diff
+        flag, key, v1, _ = diff
         # if key =~ /\[/
         #   keyname = key.match(/^(.*)\[\]$/).captures
         # elsif key =~ /\./

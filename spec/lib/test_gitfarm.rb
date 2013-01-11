@@ -35,6 +35,11 @@ describe Treet::Gitfarm do
         repo.tags.must_be_empty
       end
     end
+
+    it "should retrieve by id" do
+      repoid = farm.repos.keys.sample
+      farm.repo(repoid).wont_be_nil
+    end
   end
 
   describe "new repo in empty farm" do
