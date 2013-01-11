@@ -13,10 +13,6 @@ class Treet::Repo
     expand(root)
   end
 
-  def reset
-    # clear any cached data
-  end
-
   def compare(target)
     Treet::Hash.diff(to_hash, target.to_hash)
   end

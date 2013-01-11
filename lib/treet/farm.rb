@@ -14,17 +14,13 @@ class Treet::Farm
   end
 
   def repos(opts = {})
-    @repos_cache ||= Dir.glob("#{root}/*").each_with_object({}) do |subdir,h|
+    Dir.glob("#{root}/*").each_with_object({}) do |subdir,h|
       # in a Farm we are looking for repositories under the root
       if File.directory?(subdir)
         xref = File.basename(subdir)
         h[xref] = repotype.new(subdir, opts.merge(:xrefkey => xrefkey, :xref => xref))
       end
     end
-  end
-
-  def reset
-    @repos_cache = nil
   end
 
   # export as an array, not as a hash

@@ -14,7 +14,6 @@ describe "Repo" do
     repo.to_hash.should == {
       'name' => {'full' => 'John Bigbooté'}
     }
-    repo.reset
     repo.to_hash.should == {
       'name' => {'full' => 'John Bigbooté'}
     }

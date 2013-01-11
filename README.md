@@ -85,6 +85,7 @@ are not allowed.
 
 ## TODO
 
+* why is caching built into treet farm? The data on disk could change. Caching doesn't belong here.
 * Enforce limitation on structure depth (top-level elements can contain flat hashes or arrays, nothing else)
 * refac: move diff stuff from hash.rb to Treet::Diff class, to encapsulate the structure of a diff (array of arrays); create methods for hunting for special stuff in a diff
 * Check all exceptions for explicit classes

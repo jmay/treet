@@ -185,7 +185,7 @@ describe Treet::Gitrepo do
 
   describe "a tagged & patched repo" do
     def self.makerepo
-      @cache ||= begin
+      @repo ||= begin
         r = make_gitrepo('two',
           :author => {:name => 'Bob', :email => 'bob@example.com'},
           :xrefkey => 'app1',
@@ -269,7 +269,7 @@ describe Treet::Gitrepo do
 
   describe "a multiply-patched gitrepo" do
     def self.makerepo
-      @cache ||= begin
+      @repo ||= begin
         r = make_gitrepo('two', :author => {:name => 'Bob', :email => 'bob@example.com'})
         r.tag('app1')
         r.tag('app2')
