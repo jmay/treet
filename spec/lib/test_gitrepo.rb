@@ -340,7 +340,7 @@ describe Treet::Gitrepo do
     end
 
     it "should show a branch" do
-      repo.branches.must_equal ['refs/heads/mybranch']
+      repo.branches.must_equal ['mybranch']
     end
   end
 end

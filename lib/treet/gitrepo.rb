@@ -62,7 +62,7 @@ class Treet::Gitrepo < Treet::Repo
   end
 
   def branches
-    refs(/heads/).map(&:name) - ['refs/heads/master']
+    refs(/heads/).map {|ref| ref.name.gsub(/^refs\/heads\//, '')} - ['master']
   end
 
   # always branch from tip of master (private representation)
