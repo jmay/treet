@@ -70,13 +70,20 @@ class Treet::Gitrepo < Treet::Repo
     Rugged::Reference.create(gitrepo, "refs/heads/#{name}", head.target)
   end
 
+  def tagged?(tagname)
+    ! commit_id_for(tagname).nil?
+  end
+
   def version(opts = {})
-    if tag = opts[:tag]
-      ref = Rugged::Reference.lookup(gitrepo, "refs/tags/#{tag}")
-      ref && ref.target
+    if tagname = opts[:tag]
+      commit_id_for(tagname)
     else
       head.target
     end
+  end
+
+  def current?(tagname)
+    commit_id_for(tagname) == head.target
   end
 
   private
@@ -172,9 +179,16 @@ class Treet::Gitrepo < Treet::Repo
     data
   end
 
+  def commit_id_for(tagname)
+    (ref = Rugged::Reference.lookup(gitrepo, "refs/tags/#{tagname}")) && ref.target
+  end
+
   def tag_snapshot(tagname)
-    tag_ref = Rugged::Reference.lookup(gitrepo, "refs/tags/#{tagname}")
-    raise ArgumentError, "tag '#{tagname}' does not exist in this repo" unless tag_ref
-    snapshot(tag_ref.target)
+    if commitid = version(:tag => tagname)
+      snapshot(commitid)
+    else
+      # this tag does not appear in the repo; this is NOT an exception
+      {}
+    end
   end
 end

@@ -69,10 +69,6 @@ describe Treet::Gitrepo do
       johnb.tags.must_be_empty
     end
 
-    it "should fail on unknown tag lookups" do
-      ->{johnb.to_hash(:tag => 'nosuchtag')}.must_raise ArgumentError
-    end
-
     it "should have no branches" do
       johnb.branches.must_be_empty
     end
@@ -81,8 +77,16 @@ describe Treet::Gitrepo do
       johnb.version.must_equal johnb.head.target
     end
 
-    it "should return nil for unknown tag versions" do
-      johnb.version(:tag => 'nosuchtag').must_be_nil
+    describe "an unknown tag" do
+      it "should have no commit" do
+        johnb.version(:tag => 'nosuchtag').must_be_nil
+      end
+      it "should not be present" do
+        refute johnb.tagged?('nosuchtag')
+      end
+      it "should return empty data" do
+        assert johnb.to_hash(:tag => 'nosuchtag').empty?
+      end
     end
   end
 
@@ -191,7 +195,7 @@ describe Treet::Gitrepo do
           :xrefkey => 'app1',
           :xref => 'APP1_ID'
         )
-        r.tag('app1')
+        r.tag('pre-edit')
         r.patch([
           [
             "-",
@@ -220,24 +224,31 @@ describe Treet::Gitrepo do
       repo.index.count.must_equal 2
     end
 
-    it "should have tag not pointing to HEAD" do
+    it "should have one tag" do
       repo.tags.count.must_equal 1
-      repo.tags.first.name.must_equal "refs/tags/app1"
-      repo.tags.first.target.wont_equal repo.head.target
-    end
-
-    it "should have the original image for the tag" do
-      refute hashalike(repo.to_hash, repo.to_hash(:tag => 'app1'))
-      assert hashalike(repo.to_hash(:tag => 'app1'), load_json('two'))
     end
 
     it "should have no branches" do
       repo.branches.must_be_empty
     end
 
-    it "should track version label by tag" do
-      repo.version.must_equal repo.head.target
-      repo.version(:tag => 'app1').must_equal repo.tags.first.target
+    describe "head state" do
+      it "should track version label by tag" do
+        assert repo.version == repo.head.target
+      end
+    end
+
+    describe "pre-patch state" do
+      it "should not be same as HEAD" do
+        assert repo.tagged?("pre-edit")
+        refute repo.current?("pre-edit")
+        assert repo.version(:tag => "pre-edit") != repo.version
+      end
+
+      it "should have the original image" do
+        refute hashalike(repo.to_hash, repo.to_hash(:tag => 'pre-edit'))
+        assert hashalike(repo.to_hash(:tag => 'pre-edit'), load_json('two'))
+      end
     end
   end
 
@@ -251,6 +262,8 @@ describe Treet::Gitrepo do
     it "should have tags" do
       repo.tags.count.must_equal 1
       repo.tags.first.name.must_equal "refs/tags/source1"
+      assert repo.tagged?("source1")
+      assert repo.current?("source1")
     end
 
     it "should have no branches" do
@@ -329,6 +342,9 @@ describe Treet::Gitrepo do
     it "should have different version labels for each tag" do
       versions = ['app1', 'app2', 'app3', 'app4'].map {|s| repo[:repo].version(:tag => s)}
       versions.uniq.count.must_equal 4
+    end
+
+    it "should know which tag matches the HEAD state" do
     end
   end
 
