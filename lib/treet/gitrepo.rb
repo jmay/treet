@@ -149,6 +149,17 @@ class Treet::Gitrepo < Treet::Repo
     commit!(tree_sha)
   end
 
+  def gitget(obj)
+    data = gitrepo.read(obj[:oid]).data
+    begin
+      JSON.load(data)
+    rescue JSON::ParserError
+      # parser errors are not fatal
+      # this just indicates a string entry rather than a hash
+      data.empty? ? obj[:name] : data
+    end
+  end
+
   def snapshot(commit_sha)
     commit = gitrepo.lookup(commit_sha)
     tree = commit.tree
@@ -157,18 +168,10 @@ class Treet::Gitrepo < Treet::Repo
     tree.each do |obj|
       data[obj[:name]] = case obj[:type]
       when :blob
-        begin
-          JSON.load(gitrepo.read(obj[:oid]).data)
-        rescue JSON::ParserError
-          raise JSON::ParserError, "bad JSON in blob #{obj[:name]}: #{gitrepo.read(obj[:oid]).data}"
-        end
+        gitget(obj)
       when :tree
-        begin
-          gitrepo.lookup(obj[:oid]).each_with_object([]) do |subobj,d|
-            d << JSON.load(gitrepo.read(subobj[:oid]).data)
-          end
-        rescue JSON::ParserError
-          raise JSON::ParserError, "bad JSON in tree #{obj[:name]}: #{gitrepo.read(obj[:oid]).data}"
+        gitrepo.lookup(obj[:oid]).each_with_object([]) do |subobj,d|
+          d << gitget(subobj)
         end
       else
         raise TypeError, "UNRECOGNIZED GIT OBJECT TYPE #{obj[:type]}"

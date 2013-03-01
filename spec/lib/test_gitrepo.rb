@@ -90,6 +90,33 @@ describe Treet::Gitrepo do
     end
   end
 
+  describe "a gitrepo with an array of strings" do
+    def self.make_repo
+      @repo ||= begin
+        data = {
+          "label" => "Rainbow Colors",
+          "colors" => %w{red orange yellow green blue purple}
+        }
+        thash = Treet::Hash.new(data)
+        trepo = thash.to_repo(Dir.mktmpdir('repo', $topdir))
+        Treet::Gitrepo.new(trepo.root, :author => {:name => 'Bob', :email => 'bob@example.com'})
+      end
+    end
+
+    let(:repo) { self.class.make_repo }
+
+    it "should fetch directly from file system" do
+      repo.to_hash.wont_be_nil
+    end
+
+    it "should fetch via git" do
+      data = repo.to_hash(:commit => repo.head.target)
+      data.wont_be_nil
+      assert data['label'] == 'Rainbow Colors'
+      assert data['colors'].to_set == %w{red orange yellow green blue purple}.to_set
+    end
+  end
+
 
   describe "a patched gitrepo" do
     def self.patch_johnb
