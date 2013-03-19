@@ -27,7 +27,8 @@ class Treet::Repo
       [keyname, '', nil]
     elsif keyname =~ /\./
       # subelement
-      filename,field = keyname.split('.')
+      # negative lookbehind; don't split on a dot at beginning of string
+      filename,field = keyname.split(/(?<!^)\./)
       ['.', filename, field]
     else
       ['.', keyname]
@@ -147,7 +148,6 @@ class Treet::Repo
   end
 
   def filenames(path)
-    # Dir.entries(path).select {|f|  f !~ /^\.+$|.git/}
     Dir.entries(path).select {|f|  f !~ /^\./}
   end
 end

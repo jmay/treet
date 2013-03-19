@@ -43,7 +43,9 @@ class Treet::Gitrepo < Treet::Repo
 
   def patch(patchdef)
     super
-    add_and_commit!
+    if git_changes?(patchdef)
+      add_and_commit!
+    end
   end
 
   def to_hash(opts = {})
@@ -142,11 +144,11 @@ class Treet::Gitrepo < Treet::Repo
         # `index#remove` handles directories
         index.remove(file)
       end
-    end
 
-    index.write
-    tree_sha = index.write_tree
-    commit!(tree_sha)
+      index.write
+      tree_sha = index.write_tree
+      commit!(tree_sha)
+    end
   end
 
   def gitget(obj)
@@ -197,5 +199,10 @@ class Treet::Gitrepo < Treet::Repo
   def augmentation(path = root)
     dotfiles = Dir.entries(path).select {|f|  f =~ /^\./ && f !~ /^(\.|\.\.|\.git)$/}
     dotfiles.each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
+  end
+
+  # any patches in here that affect anything that must be recorded in git?
+  def git_changes?(patchdef)
+    patchdef.find {|p| p[1] =~ /^[^.]/}
   end
 end

@@ -41,13 +41,18 @@ describe Treet::Gitrepo do
         }
         thash = Treet::Hash.new(data)
         trepo = thash.to_repo(Dir.mktmpdir('repo', $topdir))
-        Treet::Gitrepo.new(trepo.root, :author => {:name => 'Bob', :email => 'bob@example.com'})
+        r = Treet::Gitrepo.new(trepo.root, :author => {:name => 'Bob', :email => 'bob@example.com'})
+        r.patch([]) # should be no-op, trigger no commit
+        r
       end
     end
 
     let(:johnb) { self.class.make_johnb }
 
     it "should have exactly one commit" do
+      Dir.chdir(johnb.root) do
+        `git log --oneline`.lines.count.must_equal 1
+      end
       johnb.head.wont_be_nil
       johnb.refs.count.must_equal 1
       johnb.refs.first.target.must_equal johnb.head.target
@@ -388,23 +393,30 @@ describe Treet::Gitrepo do
 
   describe "repo with non-gitified attributes" do
     let(:repo) do
-      @data = {'foo' => 'bar', '.attr' => 'do not store this under git'}
+      @data = {'foo' => 'bar', '.attr' => {'key' => 'value'}}
       thash = Treet::Hash.new(@data)
       trepo = thash.to_repo(Dir.mktmpdir('repo', $topdir))
       r = Treet::Gitrepo.new(trepo.root, :author => {:name => 'Bob', :email => 'bob@example.com'})
       r.tag('testing')
-      # r.branch('mybranch')
+      r.patch([["~", ".attr.key", "newvalue"]])
+      @updated = {'foo' => 'bar', '.attr' => {'key' => 'newvalue'}}
       r
     end
 
     it "should retrieve all attributes" do
-      repo.to_hash.must_equal @data
+      repo.to_hash.must_equal @updated
+    end
+
+    it "should not create new commits for edits to dot attributes" do
+      Dir.chdir(repo.root) do
+        `git log --oneline`.lines.count.must_equal 1
+      end
     end
 
     it "should retrieve non-gitified attrs even via tags and commits" do
-      repo.to_hash(:tag => 'testing').must_equal @data
-      repo.to_hash(:commit => repo.version(:tag => 'testing')).must_equal @data
-      repo.to_hash(:commit => repo.version).must_equal @data
+      repo.to_hash(:tag => 'testing').must_equal @updated
+      repo.to_hash(:commit => repo.version(:tag => 'testing')).must_equal @updated
+      repo.to_hash(:commit => repo.version).must_equal @updated
     end
 
     it "should not commit the dot-prefixed attributes" do
