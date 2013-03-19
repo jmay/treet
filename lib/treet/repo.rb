@@ -143,7 +143,11 @@ class Treet::Repo
   end
 
   def expand(path)
-    files = Dir.entries(path).select {|f|  f !~ /^\./}
-    files.each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
+    filenames(path).each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
+  end
+
+  def filenames(path)
+    # Dir.entries(path).select {|f|  f !~ /^\.+$|.git/}
+    Dir.entries(path).select {|f|  f !~ /^\./}
   end
 end

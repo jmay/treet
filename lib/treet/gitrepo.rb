@@ -52,9 +52,8 @@ class Treet::Gitrepo < Treet::Repo
     elsif opts[:tag]
       tag_snapshot(opts[:tag])
     else
-      # snapshot(head.target)
       super()
-    end
+    end.merge(augmentation)
   end
 
   def entries
@@ -120,6 +119,7 @@ class Treet::Gitrepo < Treet::Repo
   def add_and_commit!
     current_index = entries
     Dir.chdir(root) do
+      # automatically ignores dotfiles
       current_files = Dir.glob('**/*')
 
       # additions
@@ -178,7 +178,6 @@ class Treet::Gitrepo < Treet::Repo
       end
     end
 
-    # decorate(data)
     data
   end
 
@@ -193,5 +192,10 @@ class Treet::Gitrepo < Treet::Repo
       # this tag does not appear in the repo; this is NOT an exception
       {}
     end
+  end
+
+  def augmentation(path = root)
+    dotfiles = Dir.entries(path).select {|f|  f =~ /^\./ && f !~ /^(\.|\.\.|\.git)$/}
+    dotfiles.each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
   end
 end

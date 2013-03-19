@@ -1,6 +1,5 @@
 # encoding: UTF-8
 require "test_helper"
-require "pp"
 
 # convert a hash to a gitrepo
 # convert a plain repo to a gitrepo
@@ -384,6 +383,36 @@ describe Treet::Gitrepo do
 
     it "should show a branch" do
       repo.branches.must_equal ['mybranch']
+    end
+  end
+
+  describe "repo with non-gitified attributes" do
+    let(:repo) do
+      @data = {'foo' => 'bar', '.attr' => 'do not store this under git'}
+      thash = Treet::Hash.new(@data)
+      trepo = thash.to_repo(Dir.mktmpdir('repo', $topdir))
+      r = Treet::Gitrepo.new(trepo.root, :author => {:name => 'Bob', :email => 'bob@example.com'})
+      r.tag('testing')
+      # r.branch('mybranch')
+      r
+    end
+
+    it "should retrieve all attributes" do
+      repo.to_hash.must_equal @data
+    end
+
+    it "should retrieve non-gitified attrs even via tags and commits" do
+      repo.to_hash(:tag => 'testing').must_equal @data
+      repo.to_hash(:commit => repo.version(:tag => 'testing')).must_equal @data
+      repo.to_hash(:commit => repo.version).must_equal @data
+    end
+
+    it "should not commit the dot-prefixed attributes" do
+      Dir.chdir(repo.root) do
+        gitified = `git ls-tree --name-only HEAD`
+        gitified.must_include('foo')
+        gitified.wont_include('.attr')
+      end
     end
   end
 end
