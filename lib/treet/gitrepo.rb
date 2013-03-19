@@ -37,7 +37,7 @@ class Treet::Gitrepo < Treet::Repo
       end
     rescue Rugged::ReferenceError
       # invalid string for source, e.g. blank or illegal punctuation (colons)
-      raise ArgumentError "invalid source string '#{tagname}' for repository tagging"
+      raise ArgumentError, "invalid source string '#{tagname}' for repository tagging"
     end
   end
 
