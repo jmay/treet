@@ -8,7 +8,7 @@ require "test_helper"
 # patch a gitrepo (with commit) - verify commit structure
 # pulling past snapshots
 
-describe Treet::Gitrepo do
+class GitrepoTests < MiniTest::Spec
   def self.make_gitrepo(filename, opts = {})
     thash = Treet::Hash.new(load_json(filename))
     trepo = thash.to_repo(Dir.mktmpdir('repo', $topdir))
@@ -123,8 +123,8 @@ describe Treet::Gitrepo do
 
 
   describe "a patched gitrepo" do
-    def self.patch_johnb
-      @memo ||= begin
+    def repo
+      @@repo_patch ||= begin
         data = {
           "name" => {
             "full" => "John Bigbooté"
@@ -133,18 +133,17 @@ describe Treet::Gitrepo do
         thash = Treet::Hash.new(data)
         trepo = thash.to_repo(Dir.mktmpdir('repo', $topdir))
         r = Treet::Gitrepo.new(trepo.root, :author => {:name => 'Bob', :email => 'bob@example.com'})
-        r.patch([
-          [
-            "+",
-            "org.name",
-            "Bigcorp"
-          ]
-        ])
+        @@v1 = r.version
+        r.patch([["+", "org.name", "Bigcorp"]])
+        @@v2 = r.version
+        r.patch([["+", "name.first", "John"], ["+", "name.last", "Bigbooté"]])
+        @@v3 = r.version
+        r.patch([["+", "name.last", "Bigbritches"]])
         r
       end
     end
 
-    let(:repo) { self.class.patch_johnb }
+    # let(:repo) { self.class.patch_johnb }
 
     it "should have correct git index" do
       repo.index.count.must_equal 2
@@ -153,26 +152,35 @@ describe Treet::Gitrepo do
     end
 
     it "should hashify correctly" do
-      expectation = load_json('one').merge({'org' => {'name' => 'Bigcorp'}})
+      expectation = {
+        'name' => {'full' => 'John Bigbooté', 'first' => 'John', 'last' => 'Bigbritches'},
+        'org' => {'name' => 'Bigcorp'}
+      }
       repo.to_hash.must_equal expectation
     end
 
     it "should have 2 commits" do
       r = Rugged::Repository.new(repo.root)
       latest_commit = r.head.target
-      r.lookup(latest_commit).parents.count.must_equal 1
-      previous_commit = r.lookup(latest_commit).parents.first
-      previous_commit.parents.must_be_empty
+      walker = Rugged::Walker.new(r)
+      walker.push(latest_commit)
+      walker.count.must_equal 4
     end
 
     it "should have no tags" do
       repo.tags.must_be_empty
     end
 
-    # it "should be able to reverse-engineer the patch from the git history" do
-    #   skip
-    #   # rugged has a `Rugged::Commit#diff-tree` on the roadmap (see `USAGE.rb`), not yet implemented
-    # end
+    it "should be able to attach tags to commits" do
+      repo.tag('foo')
+      repo.version(:tag => 'foo').must_equal repo.version
+      repo.tag('foo', :commit => @@v1)
+      repo.version(:tag => 'foo').must_equal @@v1
+      repo.version(:tag => 'foo').wont_equal repo.version
+      ->{repo.tag('foo', :commit => 'junk')}.must_raise ArgumentError
+      ->{repo.tag('foo', :commit => @@v2.reverse)}.must_raise ArgumentError
+      repo.detag('foo')
+    end
   end
 
   describe "patched with a delete" do

@@ -25,19 +25,25 @@ class Treet::Gitrepo < Treet::Repo
     gitrepo.refs(/tags/)
   end
 
-  def tag(tagname)
+  def tag(tagname, opts = {})
     refname = "refs/tags/#{tagname}"
-    begin
-      if tag_ref = Rugged::Reference.lookup(gitrepo, refname)
-        # move an existing tag
-        tag_ref.target = head.target
-      else
-        # new tag
-        Rugged::Reference.create(gitrepo, refname, head.target)
-      end
-    rescue Rugged::ReferenceError
-      # invalid string for source, e.g. blank or illegal punctuation (colons)
-      raise ArgumentError, "invalid source string '#{tagname}' for repository tagging"
+    commit = opts[:commit] || head.target
+    if tag_ref = Rugged::Reference.lookup(gitrepo, refname)
+      # move an existing tag
+      tag_ref.target = commit
+    else
+      # new tag
+      Rugged::Reference.create(gitrepo, refname, commit)
+    end
+  rescue Rugged::ReferenceError, Rugged::InvalidError => e
+    # invalid string for source, e.g. blank or illegal punctuation (colons)
+    # or opts[:commit] is invalid
+    raise ArgumentError, "unable to tag '#{tagname}' on repo: #{e.message}"
+  end
+
+  def detag(tagname)
+    if tag_ref = Rugged::Reference.lookup(gitrepo, "refs/tags/#{tagname}")
+      tag_ref.delete!
     end
   end
 
