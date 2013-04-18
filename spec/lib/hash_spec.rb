@@ -24,6 +24,16 @@ describe "Hash" do
     end
   end
 
+  it "should accept symbols for keys" do
+    h = {:name => {:full => 'John Bigbooté'}}
+    hash = Treet::Hash.new(h)
+
+    Dir.mktmpdir do |dir|
+      hash.to_repo(dir)
+      JSON.load(File.open("#{dir}/name")).should == {'full' => 'John Bigbooté'}
+    end
+  end
+
   it "should convert arrays to subdirs named with digests" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/two.json")
 

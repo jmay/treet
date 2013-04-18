@@ -64,7 +64,7 @@ class Treet::Hash
       data.each do |k,v|
         case v
         when Hash
-          File.open(k, "w") {|f| f << JSON.pretty_generate(v)}
+          File.open(k.to_s, "w") {|f| f << JSON.pretty_generate(v)}
 
         when Array
           Dir.mkdir(k.to_s)
