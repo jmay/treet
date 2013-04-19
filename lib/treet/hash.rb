@@ -1,5 +1,6 @@
 # encoding: UTF-8
 
+require "map"
 require "json"
 require "digest/sha1"
 
@@ -32,11 +33,32 @@ class Treet::Hash
     data.to_hash
   end
 
+  # def normalized_data
+  #   data.each_with_object({}) do |(k,v),h|
+  #     h[k.to_s] = case v
+  #     when Array
+  #       v.sort_by {|x| x.hash}
+  #     else
+  #       v
+  #     end
+  #   end
+  # end
+  def hash
+    data.hash
+    # normalized_data.hash
+  end
+
   def compare(target)
     # HashDiff.diff(data, target.to_hash)
     Treet::Hash.diff(data.to_hash, target.to_hash)
   end
 
+  def ==(target)
+    eql?(target)
+  end
+  def eql?(target)
+    self.hash.eql? target.hash
+  end
   # apply diffs (created via the `#compare` function) to create a new object
   def patch(diffs)
     newhash = Treet::Hash.patch(self.to_hash, diffs)
@@ -92,17 +114,21 @@ class Treet::Hash
   end
 
   def normalize(hash)
-    hash.each_with_object({}) do |(k,v),h|
+    Map.new(hash).sort_by(&:first).each_with_object(Map.new) do |(k,v),h|
+    # Map.new(hash).each_with_object(Map.new) do |(k,v),h|
+    # hash.each_with_object(Map.new) do |(k,v),h|
       case v
       when Array
-        if v.map(&:class).uniq == Hash
-          # all elements are Hashes
-          h[k] = v.sort do |a,b|
-            a.to_a.sort_by(&:first).flatten <=> b.to_a.sort_by(&:first).flatten
-          end
-        else
-          h[k] =v
-        end
+        h[k] = v.uniq.sort_by(&:hash) if v.any?
+        # if v.map(&:class).uniq == Map
+        #   # all elements are Maps
+        #   h[k] = v.sort_by(&:hash)
+        #   # h[k] = v.sort do |a,b|
+        #   #   a.to_a.sort_by(&:first).flatten <=> b.to_a.sort_by(&:first).flatten
+        #   # end
+        # else
+        #   h[k] = v
+        # end
 
       else
         h[k] = v
@@ -175,7 +201,7 @@ class Treet::Hash
     result = hash.dup
 
     diffs.each do |diff|
-      flag, key, v1, v2 = diff
+      flag, key, v1, _ = diff
       if key =~ /\[/
         keyname, is_array = key.match(/^(.*)(\[\])$/).captures
       elsif key =~ /\./

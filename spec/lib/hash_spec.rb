@@ -1,12 +1,17 @@
 # encoding: UTF-8
 require "spec_helper"
 
-describe "Hash" do
+describe Treet::Hash do
   it "should inject JSON" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
     hash.data.should == {
       'name' => {'full' => 'John Bigbooté'}
     }
+  end
+
+  it "should allow no empty fields" do
+    hash = Treet::Hash.new({:empty => []})
+    hash.data.keys.should be_empty
   end
 
   it "should compare hashes to file trees" do
@@ -32,6 +37,9 @@ describe "Hash" do
       hash.to_repo(dir)
       JSON.load(File.open("#{dir}/name")).should == {'full' => 'John Bigbooté'}
     end
+
+    hash2 = Treet::Hash.new({'name' => {'full' => 'John Bigbooté'}})
+    hash.eql?(hash2).should == true
   end
 
   it "should convert arrays to subdirs named with digests" do
@@ -56,6 +64,14 @@ describe "Hash" do
 
     hash1.compare(hash1).should == []
     hash1.compare(hash2).should == []
+
+    hash1.should == hash1
+    hash1.should == hash2
+
+    hash1.eql?(hash1).should == true
+    hash1.eql?(hash2).should == true
+
+    hash1.hash.should == hash2.hash
 
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/two.json")
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/two")
@@ -111,20 +127,24 @@ describe "shallow comparison of hashes" do
     h1 = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/bob1.json")
     h2 = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/bob2.json")
     diffs = h1.compare(h2)
-    # diffs.should include(["~", "name.full", "Bob Smith", "Robert Smith"])
-    # diffs.should include(["+", "business.organization", "Acme Inc."])
-    # diffs.should include(["-", "other.notes", "some commentary"])
-    diffs.should == [
-      ["~", "name.full", "Robert Smith", "Bob Smith"],
+    diffs.sort.should == [
+      ["+", "business.organization", "Acme Inc."],
+      ["+", "emails[]", {"label"=>"home", "email"=>"bob@newhome.com"}],
       ["-", "emails[]", {"label"=>"home", "email"=>"bob@home.com"}],
       ["-", "emails[]", {"label"=>"other", "email"=>"bob@vacation.com"}],
-      ["+", "emails[]", {"label"=>"home", "email"=>"bob@newhome.com"}],
       ["-", "other.notes", "some commentary"],
-      ["+", "business.organization", "Acme Inc."]
+      ["~", "name.full", "Robert Smith", "Bob Smith"],
     ]
 
     h3 = h1.patch(diffs)
     h3.compare(h2).should == []
+  end
+
+  describe "comparison should ignore order of keys" do
+    h1 = Treet::Hash.new(:name => "foo", :addresses => [{:bar => 'baz'}, {:bar => 'biz'}, {:bar => 'boz'}], :phones => [{:label => 'home', :phone => '123-123-1234'}], :empty => [])
+    h2 = Treet::Hash.new('phones' => [{'label' => 'home', 'phone' => '123-123-1234'}], 'name' => 'foo', 'addresses' =>[{'bar' => 'boz'}, {'bar' => 'biz'}, {'bar' => 'baz'}, {'bar' => 'biz'}])
+    h1.should == h2
+    h1.hash.should == h2.hash
   end
 
   describe "arrays of strings should build lists of filenames" do

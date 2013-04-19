@@ -15,6 +15,7 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = Treet::VERSION
 
+  gem.add_dependency 'map'
   gem.add_dependency 'thor'
   gem.add_dependency 'rugged', "~> 0.17.0.b6"
 
