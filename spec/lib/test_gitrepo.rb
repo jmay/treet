@@ -67,6 +67,9 @@ class GitrepoTests < MiniTest::Spec
 
     it "should fetch data content" do
       johnb.to_hash.must_equal load_json('one')
+      johnb.to_hash.must_equal(Treet::Hash.new({:name => {:full => "John Bigbooté"}}))
+      jb2 = Treet::Gitrepo.new(johnb.root, :author => {})
+      jb2.to_hash.must_equal(Treet::Hash.new({:name => {:full => "John Bigbooté"}}))
     end
 
     it "should have no tags" do

@@ -2,10 +2,19 @@
 require "spec_helper"
 
 describe Treet::Hash do
-  it "should inject JSON" do
+  it "should be indifferent about keys" do
+    h1 = Treet::Hash.new({:name => {:full => 'John Smith'}})
+    h2 = Treet::Hash.new({'name' => {'full' => 'John Smith'}})
+    h1.should == h2
+  end
+
+  it "should inject JSON and do indifferent comparison" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
     hash.data.should == {
       'name' => {'full' => 'John Bigbooté'}
+    }
+    hash.data.should == {
+      :name => {:full => 'John Bigbooté'}
     }
   end
 
@@ -24,8 +33,10 @@ describe Treet::Hash do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
 
     Dir.mktmpdir do |dir|
-      hash.to_repo(dir)
+      repo = hash.to_repo(dir)
       JSON.load(File.open("#{dir}/name")).should == {'full' => 'John Bigbooté'}
+      repo.to_hash.should == hash
+      Treet::Repo.new(dir).to_hash.should == hash
     end
   end
 

@@ -7,6 +7,9 @@ describe "Repo" do
     repo.to_hash.should == {
       'name' => {'full' => 'John Bigbooté'}
     }
+    repo.to_hash.should == {
+      :name => {:full => 'John Bigbooté'}
+    }
   end
 
   it "should reload on reset" do

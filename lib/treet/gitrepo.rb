@@ -186,7 +186,7 @@ class Treet::Gitrepo < Treet::Repo
       end
     end
 
-    data
+    Treet::Hash.new(data)
   end
 
   def commit_id_for(tagname)

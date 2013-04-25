@@ -3,9 +3,13 @@
 require "map"
 require "json"
 require "digest/sha1"
+require "forwardable"
 
 class Treet::Hash
   attr_reader :data
+
+  extend Forwardable
+  def_delegators :@data, :keys, :values, :hash, :[], :merge, :empty?, :any?
 
   # when loading an Array (at the top level), members are always sorted
   # so that array comparisons will be order-independent
@@ -17,7 +21,11 @@ class Treet::Hash
       # treat as filename
       JSON.load(File.read(source))
     else
-      raise "Invalid source data type #{source.class} for Treet::Hash"
+      if source.respond_to?(:to_hash)
+        initialize(source.to_hash)
+      else
+        raise "Invalid source data type #{source.class} for Treet::Hash"
+      end
     end
 
     @data = normalize(d)
@@ -30,7 +38,7 @@ class Treet::Hash
   end
 
   def to_hash
-    data.to_hash
+    data #.to_hash
   end
 
   # def normalized_data
@@ -43,10 +51,10 @@ class Treet::Hash
   #     end
   #   end
   # end
-  def hash
-    data.hash
-    # normalized_data.hash
-  end
+  # def hash
+  #   data.hash
+  #   # normalized_data.hash
+  # end
 
   def compare(target)
     # HashDiff.diff(data, target.to_hash)
@@ -57,11 +65,12 @@ class Treet::Hash
     eql?(target)
   end
   def eql?(target)
-    self.hash.eql? target.hash
+    self.hash.eql?(Treet::Hash.new(target).hash)
   end
   # apply diffs (created via the `#compare` function) to create a new object
   def patch(diffs)
-    newhash = Treet::Hash.patch(self.to_hash, diffs)
+    # newhash = Treet::Hash.patch(self.to_hash, diffs)
+    newhash = Treet::Hash.patch(data, diffs)
     Treet::Hash.new(newhash)
   end
 
@@ -223,7 +232,7 @@ class Treet::Hash
       when '+'
         # add something
         if subkey
-          result[keyname] ||= {}
+          result[keyname] ||= Map.new
           result[keyname][subkey] = v1
         elsif is_array
           result[keyname] ||= []
@@ -244,8 +253,11 @@ class Treet::Hash
       end
     end
 
-    result.delete_if {|k,v| v.nil? || v.empty?}
-
+    # result.delete_if {|k,v| v.nil? || v.empty?}
+    # TODO: delete_if started failing when I switched to Map, can't figure out why
+    result.each do |k,v|
+      result.delete(k) if v.nil? || v.empty?
+    end
     result
   end
 end

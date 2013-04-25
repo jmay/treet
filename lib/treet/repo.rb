@@ -144,7 +144,8 @@ class Treet::Repo
   end
 
   def expand(path)
-    filenames(path).each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
+    raw = filenames(path).each_with_object({}) {|f,h| h[f] = expand_json("#{path}/#{f}")}
+    Treet::Hash.new(raw)
   end
 
   def filenames(path)
