@@ -1,5 +1,3 @@
-# encoding: UTF-8
-
 require "map"
 require "json"
 require "digest/sha1"
@@ -177,6 +175,7 @@ class Treet::Hash
         end
 
       when Array
+        v2 = v2.map {|e| (Hash === e) ? e.to_hash : e}
         v1.each do |e1|
           if !v2.include?(e1)
             # element has been removed

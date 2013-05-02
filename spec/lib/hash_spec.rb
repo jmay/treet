@@ -23,6 +23,32 @@ describe Treet::Hash do
     hash.data.keys.should be_empty
   end
 
+  it "should be indifferent to hash element order" do
+    h1 = Treet::Hash.new(:one => [Map.new(:two => 'foo', :three => 'bar')])
+    h2 = Treet::Hash.new(:one => [Map.new(:three => 'bar', :two => 'foo')])
+    h1.should == h2
+    h1.compare(h2).should be_empty
+  end
+
+  it "should be indifferent to array element order" do
+    h1 = Treet::Hash.new(:one => [{:foo => 'bar'}, {:foo => 'baz'}])
+    h2 = Treet::Hash.new(:one => [{:foo => 'baz'}, {:foo => 'bar'}])
+    h1.should == h2
+    h1.compare(h2).should be_empty
+
+    h1 = Treet::Hash.new(:one => [3,5,7,11])
+    h2 = Treet::Hash.new(:one => [7,11,5,3])
+    h1.should == h2
+    h1.compare(h2).should be_empty
+  end
+
+  it "should be indifferent to array order (#2)" do
+    h1 = Treet::Hash.new(:one => [2,4,6])
+    h2 = Treet::Hash.new(:one => [6,4,2])
+    h1.should == h2
+    h1.compare(h2).should be_empty
+  end
+
   it "should compare hashes to file trees" do
     hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
     repo = Treet::Repo.new("#{File.dirname(__FILE__)}/../repos/one")
