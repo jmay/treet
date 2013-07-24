@@ -78,6 +78,7 @@ class GitrepoTests < MiniTest::Spec
 
     it "should have no branches" do
       johnb.branches.must_be_empty
+      johnb.branches('bogus').must_be_nil
     end
 
     it "should return commit SHA for version label" do
@@ -397,6 +398,7 @@ class GitrepoTests < MiniTest::Spec
 
     it "should show a branch" do
       repo.branches.must_equal ['mybranch']
+      repo.branches('mybranch').wont_be_nil
     end
   end
 

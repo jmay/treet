@@ -66,8 +66,12 @@ class Treet::Gitrepo < Treet::Repo
     index.entries.map{|e| e[:path]}
   end
 
-  def branches
-    gitrepo.branches.map(&:name) - ['master']
+  def branches(branchname = nil)
+    if branchname
+      Rugged::Branch.lookup(gitrepo, branchname)
+    else
+      gitrepo.branches.map(&:name) - ['master']
+    end
   end
 
   # always branch from tip of master (private representation)
