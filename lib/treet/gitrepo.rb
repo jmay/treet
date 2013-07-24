@@ -1,11 +1,9 @@
-# encoding: UTF-8
-
 require "rugged"
 require "forwardable"
 
 class Treet::Gitrepo < Treet::Repo
   extend Forwardable
-  def_delegators :@gitrepo, :head, :refs, :index
+  def_delegators :@gitrepo, :head, :refs, :index, :remotes
 
   def initialize(path, opts = {})
     raise ArgumentError, "author required for updates" unless opts[:author]
@@ -22,7 +20,7 @@ class Treet::Gitrepo < Treet::Repo
   end
 
   def tags
-    gitrepo.refs(/tags/)
+    gitrepo.refs.select {|ref| ref.name =~ %r{/tags/}}
   end
 
   def tag(tagname, opts = {})
@@ -30,7 +28,7 @@ class Treet::Gitrepo < Treet::Repo
     commit = opts[:commit] || head.target
     if tag_ref = Rugged::Reference.lookup(gitrepo, refname)
       # move an existing tag
-      tag_ref.target = commit
+      tag_ref.set_target(commit)
     else
       # new tag
       Rugged::Reference.create(gitrepo, refname, commit)
@@ -69,12 +67,12 @@ class Treet::Gitrepo < Treet::Repo
   end
 
   def branches
-    refs(/heads/).map {|ref| ref.name.gsub(/^refs\/heads\//, '')} - ['master']
+    gitrepo.branches.map(&:name) - ['master']
   end
 
   # always branch from tip of master (private representation)
   def branch(name)
-    Rugged::Reference.create(gitrepo, "refs/heads/#{name}", head.target)
+    gitrepo.create_branch(name)
   end
 
   def tagged?(tagname)
@@ -91,6 +89,10 @@ class Treet::Gitrepo < Treet::Repo
 
   def current?(tagname)
     commit_id_for(tagname) == head.target
+  end
+
+  def remote(name)
+    Rugged::Remote.lookup(gitrepo, name)
   end
 
   private
@@ -157,10 +159,15 @@ class Treet::Gitrepo < Treet::Repo
     end
   end
 
+  # ruby 2.0 changed behavior on empty strings: JSON.load("")
+  # under 1.9.3 and previous, this caused an exception
+  # under 2.0, this just returns nil
   def gitget(obj)
     data = gitrepo.read(obj[:oid]).data
     begin
-      JSON.load(data)
+      v = JSON.load(data)
+      v = obj[:name] if v.nil?
+      v
     rescue JSON::ParserError
       # parser errors are not fatal
       # this just indicates a string entry rather than a hash

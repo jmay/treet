@@ -98,8 +98,8 @@ class GitrepoTests < MiniTest::Spec
   end
 
   describe "a gitrepo with an array of strings" do
-    def self.make_repo
-      @repo ||= begin
+    def repo
+      @@repo_with_array ||= begin
         data = {
           "label" => "Rainbow Colors",
           "colors" => %w{red orange yellow green blue purple}
@@ -109,8 +109,6 @@ class GitrepoTests < MiniTest::Spec
         Treet::Gitrepo.new(trepo.root, :author => {:name => 'Bob', :email => 'bob@example.com'})
       end
     end
-
-    let(:repo) { self.class.make_repo }
 
     it "should fetch directly from file system" do
       repo.to_hash.wont_be_nil

@@ -18,11 +18,10 @@ guard 'minitest', test_folders: 'spec', test_file_patterns: 'test_*.rb' do
   # watch(%r|^spec/spec_helper\.rb|)    { "spec" }
 end
 
-guard 'rspec', :version => 2 do
+guard 'rspec' do
   watch(%r{^spec/.+_spec\.rb$})
 
   watch(%r{^lib/treet/(.+)\.rb$})     { |m| "spec/lib/#{m[1]}_spec.rb" }
   watch(%r{^(.+)\.rb$})     { |m| "spec/#{m[1]}_spec.rb" }
   watch('spec/spec_helper.rb')  { "spec" }
 end
-

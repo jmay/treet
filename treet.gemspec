@@ -17,7 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'map'
   gem.add_dependency 'thor'
-  gem.add_dependency 'rugged', "~> 0.17.0.b6"
+  gem.add_dependency 'rugged', "~> 0.19.0"
 
   gem.add_development_dependency "rake"
   gem.add_development_dependency "rspec"
