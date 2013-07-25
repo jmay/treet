@@ -7,6 +7,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{Transform between trees of files and JSON blobs}
   gem.summary       = %q{Transform between trees of files and JSON blobs}
   gem.homepage      = ""
+  gem.license       = "LGPL-3"
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
