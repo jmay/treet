@@ -97,13 +97,16 @@ class Treet::Repo
           # remove something
           if fieldname
             # this is a key in a subhash
-            data = JSON.load(File.open(filepath))
-            data.delete(fieldname)
-            if data.empty?
-              # all keys have been removed, clean up the file
-              File.delete(filename)
-            else
-              File.open(filepath, "w") {|f| f << JSON.pretty_generate(data)}
+            if File.exists?(filepath)
+              # if the subhash is missing, there's nothing to remove, so do nothing (for idempotence)
+              data = JSON.load(File.open(filepath))
+              data.delete(fieldname)
+              if data.empty?
+                # all keys have been removed, clean up the file
+                File.delete(filename)
+              else
+                File.open(filepath, "w") {|f| f << JSON.pretty_generate(data)}
+              end
             end
           elsif dirname == "."
             # this is a top-level string

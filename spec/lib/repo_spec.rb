@@ -198,4 +198,20 @@ describe "Repo" do
       newhash.to_hash['datalist'].should be_include('seven')
     end
   end
+
+  it "should not crash on patch that deletes missing subtree elements" do
+    hash = Treet::Hash.new("#{File.dirname(__FILE__)}/../json/one.json")
+    Dir.mktmpdir do |dir|
+      repo = hash.to_repo(dir)
+      repo.patch([
+                  [
+                   "-",
+                   "missing.thing",
+                   "does not exist"
+                  ]
+                 ])
+      newhash = repo.to_hash
+      newhash['missing'].should be_nil
+    end
+  end
 end
